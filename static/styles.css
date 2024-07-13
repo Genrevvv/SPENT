@@ -1,0 +1,115 @@
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+}
+
+.container {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    text-align: center;
+}
+
+.navbar-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    background-color: #f7f9ff;
+    border-bottom: 0.1rem solid #dddcdc;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 2.5rem;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+}
+
+.navbar-items-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.navbar-items {
+    list-style-type: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.pos-right {
+    margin-left: auto;
+}
+
+.nav-link {
+    text-decoration: none;
+    display: block;
+    padding: 0.5rem;
+}
+
+a {
+    color: #212529;
+}
+a:visited {
+    color: #212529;
+}
+
+.form-container {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+.form-input {
+    display: block;
+    padding-bottom: 1rem;
+}
+
+.form-input input {
+    font-size: 1rem;
+    padding: 0.65rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.form-input input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.25rem #abd4ff;
+}
+
+.form-container button {
+    font-size: 1rem;
+    color: #fff;
+    text-align: center;
+    padding: 0.75rem 1rem 0.55rem 1rem;
+    border-width: 0;
+    border-radius: 0.5rem;
+    background-color: #007bff;
+}
+
+.form-container button:hover {
+    cursor: pointer;
+    background-color: #046ddd;
+}
+
+.flash-message {
+    display: block;
+    font-size: 1rem;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #2088f8;
+    border-radius: 0.5rem;
+    background-color: #d8e6ff;
+}

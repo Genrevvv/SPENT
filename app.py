@@ -110,6 +110,7 @@ def register():
             db.execute("INSERT INTO users (username, pass_hash) VALUES (?, ?)", username, hashed_pass)
         except ValueError:
             flash("Username already taken")
+            return render_template("register.html")
 
         """Log user in"""
         # Check if user exists in the database
