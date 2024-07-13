@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Spent - Register
+{% endblock %}
+
+{% block main %}
+    <form action="/register" method="post">
+        <input name="username" placeholder="Username" type="text" autocomplete="off" autofocus>
+        <input name="password" placeholder="Password" type="password" autocomplete="off" autofocus>
+        <input name="confirmation" placeholder="Confirm Password" type="password" autocomplete="off" autofocus>
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}

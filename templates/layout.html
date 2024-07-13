@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+
+    <body>
+        
+        <nav>
+            <div>
+                <a>
+                    <h1>Spent</h1>
+                </a>
+
+                <div>
+                    {% if session["user_id"] %}
+                    
+                    {% else %}
+                        <ul>
+                            <li><a href="/register">Register</a></li>
+                            <li><a href="/login">Log In</a></li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        {% if get_flashed_messages() %}
+            <header>
+                <div>
+                    {{ get_flashed_messages() | join(" ") }}
+                </div>
+            </header>
+        {% endif %}
+
+        <main>
+            {% block main %}{% endblock%}
+        </main>
+        
+    </body>
+</html>
