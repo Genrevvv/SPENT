@@ -10,13 +10,20 @@
         
         <nav>
             <div>
-                <a>
+                <a href="/">
                     <h1>Spent</h1>
                 </a>
 
                 <div>
                     {% if session["user_id"] %}
-                    
+                        <ul>
+                            <li><a href=""></a></li>
+                            <li><a href=""></a></li>
+                            <li><a href=""></a></li>
+                        </ul>
+                        <ul>
+                            <li><a href="/logout">Log Out</a></li>
+                        </ul>
                     {% else %}
                         <ul>
                             <li><a href="/register">Register</a></li>

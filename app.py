@@ -40,7 +40,7 @@ def index():
 def login():
     """Log user in"""    
 
-    # Forgot any user id
+    # Forgot any user_id
     session.clear()
 
     if request.method == "POST":
@@ -70,6 +70,17 @@ def login():
     else:
         # Return a login form to the user
         return render_template("login.html")
+    
+
+@app.route("/logout")
+def logout():
+    """Log user out"""
+
+    # Forget any user_id
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
 
 
 @app.route("/register", methods=["GET", "POST"])
