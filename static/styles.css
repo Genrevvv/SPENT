@@ -4,20 +4,18 @@ body {
     font-size: 1rem;
     color: #212529;
     text-align: left;
+    width: 100%;
 }
 
 .container {
-    width: 90%;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
     text-align: center;
 }
 
 .navbar-container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    width: 100%;
     background-color: #f7f9ff;
     border-bottom: 0.1rem solid #dddcdc;
 }
@@ -30,6 +28,7 @@ body {
 
 .logo {
     font-size: 2.5rem;
+    margin-left: 1rem;
     margin-right: 1rem;
     margin-bottom: 0.5rem;
     white-space: nowrap;
@@ -50,6 +49,7 @@ body {
 
 .pos-right {
     margin-left: auto;
+    margin-right: 1rem;
 }
 
 .nav-link {
@@ -89,17 +89,17 @@ a:visited {
     box-shadow: 0 0 0 0.25rem #abd4ff;
 }
 
-.form-container button {
+.form-button {
     font-size: 1rem;
     color: #fff;
     text-align: center;
-    padding: 0.75rem 1rem 0.55rem 1rem;
+    padding: 0.75rem 1rem;
     border-width: 0;
     border-radius: 0.5rem;
     background-color: #007bff;
 }
 
-.form-container button:hover {
+.form-button:hover {
     cursor: pointer;
     background-color: #046ddd;
 }
@@ -112,4 +112,86 @@ a:visited {
     border: 1px solid #2088f8;
     border-radius: 0.5rem;
     background-color: #d8e6ff;
+}
+
+.currency-container {
+    padding: 0.5rem;
+}
+
+.currency-button {
+    font-size: 1rem;
+    background-color: #f0f7ff;
+    border: 1px solid #cacaca;
+    border-radius: 1rem;
+    padding: 10rem 5rem;
+    margin: 1rem 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.currency-button:hover {
+    cursor: pointer;
+    background-color: #dbecff;
+}
+
+.parent-div {
+    display: flex;
+    margin-top: 1rem;
+}
+
+.main-content {
+    width: 60%;
+    margin: 0rem 0.5rem;
+}
+
+.sidebar {
+    background-color: #9a9aff;
+    width: 40%;
+    margin: 0rem 0.5rem;
+ }
+
+ .main-form {
+    color: white;
+    background-color: #9bcbff;
+    border: 1px solid #208cff;
+    border-radius: 1rem;
+    margin: 0 auto;
+    width: 80%;
+ }
+
+ .main-form input {
+    margin-right: 0.5rem;
+ }
+
+ .main-form input:focus {
+    box-shadow: 0 0 0 0.25rem #3f96f3;
+ }
+
+ table {
+    background-color: transparent;
+    margin: 0 auto;
+    margin-top: 0.5rem;
+    width: 80%;
+ }
+
+table th:nth-child(1) {
+    width: 60%;
+}
+
+table th:nth-child(2) {
+    width: 40%;
+}
+
+table th,
+table td {
+    font-size: 1rem;
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+table td {
+    background-color: #f1f0f0;
+}
+
+table thead tr {
+    background-color: #9bcbff;
 }

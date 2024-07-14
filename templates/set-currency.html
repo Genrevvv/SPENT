@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    $₱ENT - Set Currency
+{% endblock %}
+
+{% block main %}
+    <div class="currency-container">
+        <h1>Select a currency:</h1>
+        <form action="/setcurrency" method="post">
+            <button class="currency-button" name="currency" type="submit" value="dollar">USD ($)</button>
+            <button class="currency-button" name="currency" type="submit" value="peso">PHP (₱)</button>
+        </form>
+    </div>
+{% endblock %}

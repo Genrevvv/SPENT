@@ -5,8 +5,58 @@
 {% endblock %}
 
 {% block main %}
-        <div>
-            <h1>Welcome to <i>$₱ENT</i></h1>
-        </div>
+            <div class="parent-div">
+
+                <div class="main-content">
+                    <div class="main-form">
+                        <h2>Add a year</h2>
+                        <form action="/addyear" method="post">
+                            <div class="form-input">
+                                <input name="year" placeholder="Input a year" type="number" autocomplete="off" autofocus>
+                                <button class="form-button" type="submit">Add Year</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="year-container">
+                            {% if not years %}
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Years</th>
+                                            <th>Total Spent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Add a year to display</td>
+                                            <td>some amount</td>
+                                        </tr>
+                                    </tbody> 
+                                </table>
+                            {% else %}
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Years</th>
+                                            <th>Total Spent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for year in years %}
+                                        <tr>
+                                            <td>{{ year }}</td>
+                                            <td>some amount</td>
+                                        </tr>                                    
+                                    {%  endfor %}
+                                    </tbody> 
+                                </table>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="sidebar">
+                    Display total expenses here
+                </div> 
+            </div>        
 
 {% endblock %}

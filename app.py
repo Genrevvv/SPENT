@@ -2,6 +2,7 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
 
 from helpers import login_required
 
@@ -32,7 +33,24 @@ def after_request(response):
 @app.route("/")
 @login_required
 def index():
-    return render_template("index.html")
+
+    # Check for user's currency
+    currency = db.execute("SELECT currency FROM users WHERE id = ?", session["user_id"])
+    currency = currency[0]["currency"]
+
+    if currency not in ["dollar", "peso"]:
+        return render_template("set-currency.html")
+    
+    # Create a list of years
+    list_of_years = []
+    years = db.execute("SELECT year FROM years WHERE user_id = ?", session["user_id"])
+    for year in years:
+        list_of_years.append(year["year"])
+
+    
+    print(list_of_years)
+    
+    return render_template("index.html", years=list_of_years)
 
 
 # Login user (references finance pset)
@@ -129,4 +147,43 @@ def register():
     else:
         # Return a register form to the user
         return render_template("register.html")
+    
+
+@app.route("/setcurrency", methods=["POST"])
+@login_required
+def setcurrency():
+    """Set user's currency"""
+
+    currency = request.form.get("currency")
+
+    # Validate user response
+    if currency not in ["dollar", "peso"]:
+        flash("Invalid currency")
+        return render_template("/")
+    
+    # Set currency
+    db.execute("UPDATE users SET currency = ? WHERE id = ?", currency, session["user_id"])
+
+    flash("Welcome to $₱ENT")
+    return redirect("/")
+
+@app.route("/addyear", methods=["POST"])
+@login_required
+def addyear():
+
+    # Validate year
+    try:
+        year = int(request.form.get("year"))
+        if year < 1582 or year > datetime.now().year:
+            flash(f"Year must be between 1582 and {datetime.now().year}, inclusive.")
+            return redirect("/")
+    except ValueError:
+        flash("Invalid year input")
+        return redirect("/") 
+    
+    db.execute("INSERT INTO years (user_id, year) VALUES (?, ?)", session["user_id"], year)
+    flash("Year added succesfully")
+    return redirect("/") 
+
+    
 
