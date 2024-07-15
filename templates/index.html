@@ -19,39 +19,35 @@
                     </div>
 
                     <div class="year-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Years</th>
+                                    <th>Annual Expenses</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                             {% if not years %}
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Years</th>
-                                            <th>Total Spent</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Add a year to display</td>
-                                            <td>some amount</td>
-                                        </tr>
-                                    </tbody> 
-                                </table>
+                                <tr>
+                                    <td><button>Add a year to display</button></td>
+                                    <td><button>some amount</button></td>
+                                </tr>
                             {% else %}
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Years</th>
-                                            <th>Total Spent</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for year in years %}
-                                        <tr>
-                                            <td>{{ year }}</td>
-                                            <td>some amount</td>
-                                        </tr>                                    
-                                    {%  endfor %}
-                                    </tbody> 
-                                </table>
+                                {% for year in years %}
+                                    <tr>
+                                        <td>
+                                            <form action="/checkyear" method="post">
+                                                <input name="year" value="{{ year }}" type="hidden">
+                                                <button type="submit">{{ year["year"] }}</button></td>
+                                            </form>
+                                        <td>
+                                            <button>{{ year["annual_expenses"] | format_currency }}</button>
+                                        </td>
+                                    </tr>                                    
+                                {%  endfor %}
                             {% endif %}
+                            </tbody> 
+                        </table>
                     </div>
                 </div>
                 <div class="sidebar">

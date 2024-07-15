@@ -4,11 +4,14 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
-from helpers import login_required
+from helpers import login_required, format_currency
 
 
 # Configure application
 app = Flask(__name__)
+
+# Custom filter
+app.jinja_env.filters["format_currency"] = format_currency
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
@@ -38,16 +41,15 @@ def index():
     currency = db.execute("SELECT currency FROM users WHERE id = ?", session["user_id"])
     currency = currency[0]["currency"]
 
-    if currency not in ["dollar", "peso"]:
+    if currency not in ["usd", "php"]:
         return render_template("set-currency.html")
     
     # Create a list of years
     list_of_years = []
-    years = db.execute("SELECT year FROM years WHERE user_id = ?", session["user_id"])
+    years = db.execute("SELECT year, annual_expenses FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
     for year in years:
-        list_of_years.append(year["year"])
+        list_of_years.append(year)
 
-    
     print(list_of_years)
     
     return render_template("index.html", years=list_of_years)
@@ -157,7 +159,7 @@ def setcurrency():
     currency = request.form.get("currency")
 
     # Validate user response
-    if currency not in ["dollar", "peso"]:
+    if currency not in ["usd", "php"]:
         flash("Invalid currency")
         return render_template("/")
     
@@ -166,6 +168,7 @@ def setcurrency():
 
     flash("Welcome to $₱ENT")
     return redirect("/")
+
 
 @app.route("/addyear", methods=["POST"])
 @login_required
@@ -179,9 +182,21 @@ def addyear():
             return redirect("/")
     except ValueError:
         flash("Invalid year input")
-        return redirect("/") 
+        return redirect("/")
     
+    # Check if year for the user already exist
+    list_of_years = []
+    years = db.execute("SELECT year FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
+    for year_value in years:
+        list_of_years.append(year_value["year"])
+
+    if year in list_of_years:
+        flash("Year already exist")
+        return redirect("/")
+
+    # Update year in database
     db.execute("INSERT INTO years (user_id, year) VALUES (?, ?)", session["user_id"], year)
+
     flash("Year added succesfully")
     return redirect("/") 
 

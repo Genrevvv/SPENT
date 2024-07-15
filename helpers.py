@@ -1,5 +1,10 @@
+from cs50 import SQL
 from flask import redirect, render_template, request, session
 from functools import wraps
+
+
+# Set SQLite database
+db = SQL("sqlite:///spent.db")
 
 # confirm login (from finance pset)
 def login_required(f):
@@ -16,3 +21,15 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+def format_currency(value):
+    # Check for user's currency
+    currency = db.execute("SELECT currency FROM users WHERE id = ?", session["user_id"])
+    currency = currency[0]["currency"] 
+    
+    # Format currency
+    if currency == "usd":
+        return f"${value:,.2f}"
+    elif currency == "php":
+        return f"₱{value:,.2f}"

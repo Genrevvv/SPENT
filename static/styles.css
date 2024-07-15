@@ -183,15 +183,36 @@ table th:nth-child(2) {
 
 table th,
 table td {
-    font-size: 1rem;
-    padding: 0.75rem;
+    font-size: 1rem;  
     vertical-align: middle;
+}
+
+table th {
+    padding: 0.75rem;
 }
 
 table td {
     background-color: #f1f0f0;
 }
 
+table td:hover {
+    cursor: pointer;
+    background-color: #d1cece;
+}
+
 table thead tr {
     background-color: #9bcbff;
+}
+
+table td button {
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    margin: none;
+    display: block;
+    padding: 0.75rem;
+}
+
+table td button:hover {
+    cursor: pointer;
 }
