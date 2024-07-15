@@ -159,12 +159,26 @@ a:visited {
  }
 
  .main-form input {
+    border: 1px solid #208cff;
     margin-right: 0.5rem;
  }
 
  .main-form input:focus {
     box-shadow: 0 0 0 0.25rem #3f96f3;
  }
+
+ .main-form select {
+    font-size: 1rem;
+    padding: 0.65rem;
+    border: 1px solid #208cff;
+    border-radius: 0.5rem;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+}
+
+.main-form select:focus {
+    box-shadow: 0 0 0 0.25rem #3f96f3;
+}
 
  table {
     background-color: transparent;
@@ -215,4 +229,19 @@ table td button {
 
 table td button:hover {
     cursor: pointer;
+}
+
+.header {
+    background-color: #67a6e9;
+    border: 1px solid #0777ee;
+    border-radius: 0.5rem;
+    margin: 0 auto;
+    width: 78%;
+    color: white;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.header:hover {
+    background-color: #4996e9;
 }

@@ -6,7 +6,17 @@ from functools import wraps
 # Set SQLite database
 db = SQL("sqlite:///spent.db")
 
-# confirm login (from finance pset)
+# Check month
+def check_month(month):
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+    if month in months:
+        return True
+    
+    return False
+
+
+# Confirm login (from finance pset)
 def login_required(f):
     """
     Decorate routes to require login.

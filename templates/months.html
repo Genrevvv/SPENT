@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    $₱ENT - {{ year }}
+{% endblock %}
+
+{% block main %}
+            <div class="parent-div">
+
+                <div class="main-content">
+                    <h2 class="header">This is {{ year }}</h2>
+                    <div class="main-form">
+                        <h2>Add a month</h2>
+                        <form action="/addmonth" method="post">
+                            <div class="form-input"> 
+                                <select name="month">
+                                    <option selected disabled>Select a month</option>
+                                    <option value="January">January</option>
+                                    <option value="February">February</option>
+                                    <option value="March">March</option>
+                                    <option value="April">April</option>
+                                    <option value="May">May</option>
+                                    <option value="June">June</option>
+                                    <option value="July">July</option>
+                                    <option value="August">August</option>
+                                    <option value="September">September</option>
+                                    <option value="October">October</option>
+                                    <option value="November">November</option>
+                                    <option value="December">December</option>
+                                </select>
+                                <input name="year" value="{{ year }}" type="hidden">
+                                <button class="form-button" type="submit">Add Month</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="year-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Months</th>
+                                    <th>Monthly Expenses</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% if not months %}
+                                <tr>
+                                    <td><button>Add a month to display</button></td>
+                                    <td><button>some amount</button></td>
+                                </tr>
+                            {% else %}
+                                {% for month in months %}
+                                    <tr>
+                                        <td>
+                                            <form action="/checkmonth" method="post">
+                                                <input name="month" value="{{ month }}" type="hidden">
+                                                <button type="submit">{{ month["month"] }}</button></td>
+                                            </form>
+                                        <td>
+                                            <form action="/checkmonth" method="post">
+                                                <input name="month" value="{{ month }}" type="hidden">
+                                                <button type="submit">{{ month["monthly_expenses"] | float | format_currency }}</button></td>
+                                            </form>
+                                        </td>
+                                    </tr>                                    
+                                {%  endfor %}
+                            {% endif %}
+                            </tbody> 
+                        </table>
+                    </div>
+                </div>
+                <div class="sidebar">
+                    Display total expenses here
+                </div> 
+            </div>        
+
+{% endblock %}

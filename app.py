@@ -4,7 +4,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
-from helpers import login_required, format_currency
+from helpers import check_month, login_required, format_currency
 
 
 # Configure application
@@ -12,6 +12,7 @@ app = Flask(__name__)
 
 # Custom filter
 app.jinja_env.filters["format_currency"] = format_currency
+app.jinja_env.filters["check_month"] = check_month
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
@@ -49,8 +50,6 @@ def index():
     years = db.execute("SELECT year, annual_expenses FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
     for year in years:
         list_of_years.append(year)
-
-    print(list_of_years)
     
     return render_template("index.html", years=list_of_years)
 
@@ -173,6 +172,7 @@ def setcurrency():
 @app.route("/addyear", methods=["POST"])
 @login_required
 def addyear():
+    """Add year"""
 
     # Validate year
     try:
@@ -200,5 +200,90 @@ def addyear():
     flash("Year added succesfully")
     return redirect("/") 
 
-    
 
+@app.route("/checkyear", methods=["POST"])
+@login_required
+def checkyear():
+    """Check months in the year"""
+
+    # Validate year
+    year = int(request.form.get("year"))
+
+    list_of_years = []
+    years = db.execute("SELECT year FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
+    for year_value in years:
+        list_of_years.append(year_value["year"])
+
+    if year not in list_of_years:
+        flash("Invalid year")
+        return redirect("/")
+    
+    # Create a list of years
+    list_of_months = []
+    months = db.execute("""SELECT month, monthly_expenses 
+                                FROM months
+                                JOIN years ON years.id = months.year_id
+                                JOIN month_order ON months.month = month_order.month_name
+                                WHERE years.user_id = ?
+                                AND years.year = ?
+                                ORDER BY month_order.month_order""", session["user_id"], year)
+    
+    for month in months:
+        list_of_months.append(month)
+
+    return render_template("months.html", year=year, months=list_of_months)
+
+
+@app.route("/addmonth", methods=["POST"])
+@login_required
+def addmonth():
+    """Add month"""
+
+    year = int(request.form.get("year"))
+
+    list_of_months = []
+    month_dictionaries= []
+    months = db.execute("""SELECT month, monthly_expenses 
+                                FROM months
+                                JOIN years ON years.id = months.year_id
+                                JOIN month_order ON months.month = month_order.month_name
+                                WHERE years.user_id = ?
+                                AND years.year = ?
+                                ORDER BY month_order.month_order""", session["user_id"], year)
+    
+    for month_value in months:
+        list_of_months.append(month_value["month"])
+        month_dictionaries.append(month_value)
+
+    # Validate month
+    try:
+        month = request.form.get("month")
+        if not month or check_month(month) == False:
+            flash(f"Invalid month input")
+            return render_template("months.html", year=year, months=month_dictionaries)
+    except ValueError:
+        flash(f"Invalid month input")
+        return render_template("months.html", year=year, months=month_dictionaries)
+
+    # Check if month of the year of the user already exist
+    if month in list_of_months:
+        flash("Month already exist")
+        return render_template("months.html", year=year, months=month_dictionaries)
+    
+    # Update month in database
+    db.execute("INSERT INTO months (year_id, month) VALUES ((SELECT id FROM years WHERE user_id = ? AND year = ?), ?)", session["user_id"], year, month)
+
+    months_check = db.execute("""SELECT month, monthly_expenses 
+                                    FROM months
+                                    JOIN years ON years.id = months.year_id
+                                    JOIN month_order ON months.month = month_order.month_name
+                                    WHERE years.user_id = ?
+                                    AND years.year = ?
+                                    ORDER BY month_order.month_order""", session["user_id"], year)
+    
+    # Create a new month's list of dictionaries
+    month_dictionaries.clear()
+    for month_value in months_check:
+        month_dictionaries.append(month_value)
+
+    return render_template("months.html", year=year, months=month_dictionaries)

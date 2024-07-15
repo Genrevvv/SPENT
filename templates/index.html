@@ -37,11 +37,14 @@
                                     <tr>
                                         <td>
                                             <form action="/checkyear" method="post">
-                                                <input name="year" value="{{ year }}" type="hidden">
+                                                <input name="year" value="{{ year['year'] }}" type="hidden">
                                                 <button type="submit">{{ year["year"] }}</button></td>
                                             </form>
                                         <td>
-                                            <button>{{ year["annual_expenses"] | format_currency }}</button>
+                                            <form action="/checkyear" method="post">
+                                                <input name="year" value="{{ year['year'] }}" type="hidden">
+                                                <button type="submit">{{ year["annual_expenses"] | format_currency }}</button></td>
+                                            </form>
                                         </td>
                                     </tr>                                    
                                 {%  endfor %}

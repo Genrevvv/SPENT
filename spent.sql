@@ -16,6 +16,35 @@ CREATE TABLE years (
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
+CREATE TABLE months (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    year_id TEXT NOT NULL,
+    month TEXT NOT NULL,
+    monthly_expenses NUMERIC NOT NULL DEFAULT 0.00,
+    FOREIGN KEY (year_id) REFERENCES years (id)
+);
+
+CREATE TABLE month_order (
+    month_name TEXT PRIMARY KEY NOT NULL,
+    month_order INTEGER NOT NULL
+);
+
+INSERT INTO month_order (month_name, month_order)
+VALUES 
+    ('January', 1),
+    ('February', 2),
+    ('March', 3),
+    ('April', 4),
+    ('May', 5),
+    ('June', 6),
+    ('July', 7),
+    ('August', 8),
+    ('September', 9),
+    ('October', 10),
+    ('November', 11),
+    ('December', 12);
+
+"""Not yet added"""
 CREATE TABLE dates (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     year_id INTEGER NOT NULL,
