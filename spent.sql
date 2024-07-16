@@ -44,6 +44,14 @@ VALUES
     ('November', 11),
     ('December', 12);
 
+CREATE TABLE days (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    month_id INTEGER NOT NULL,
+    day INTEGER NOT NULL,
+    daily_expenses NUMERIC NOT NULL DEFAULT 0.00,
+    FOREIGN KEY (month_id) REFERENCES months (id)
+);
+
 """Not yet added"""
 CREATE TABLE dates (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -55,18 +63,17 @@ CREATE TABLE dates (
 
 CREATE TABLE spent (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    year_id INTEGER NOT NULL,
-    date_id INTEGER NOT NULL,
-    amount NUMERIC NOT NULL DEFAULT 0.00,
-    FOREIGN KEY (date_id) REFERENCES years (id)
-);
-
+    day_id INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    amount NUMERIC NOT NULL DEFAULT 0.00
+    FOREIGN KEY (day_id) REFERENCES days (id)
+)
 
 --queries
-SELECT years.year, SUM(spent.amount) 
-    FROM years 
-    JOIN dates ON years.id = dates.year_id
-    JOIN spent ON dates.id = spent.date_id
-    WHERE years.user_id = 
-    GROUP BY years.year
-    ORDER BY years.year DESC;
+SELECT days.day, days.daily_expenses
+    FROM months
+    JOIN days ON  days.month_id = months.id
+    JOIN years ON years.id =  months.year_id
+    WHERE years.user_id = ?
+    AND years.year = ?
+    ORDER BY days.day;

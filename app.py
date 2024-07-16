@@ -4,7 +4,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
-from helpers import check_month, login_required, format_currency
+from helpers import check_day, check_month, login_required, format_currency
 
 
 # Configure application
@@ -13,6 +13,7 @@ app = Flask(__name__)
 # Custom filter
 app.jinja_env.filters["format_currency"] = format_currency
 app.jinja_env.filters["check_month"] = check_month
+app.jinja_env.filters["check_day"] = check_day
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
@@ -169,9 +170,9 @@ def setcurrency():
     return redirect("/")
 
 
-@app.route("/addyear", methods=["POST"])
+@app.route("/add_year", methods=["POST"])
 @login_required
-def addyear():
+def add_year():
     """Add year"""
 
     # Validate year
@@ -185,15 +186,12 @@ def addyear():
         return redirect("/")
     
     # Check if year for the user already exist
-    list_of_years = []
     years = db.execute("SELECT year FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
     for year_value in years:
-        list_of_years.append(year_value["year"])
-
-    if year in list_of_years:
-        flash("Year already exist")
-        return redirect("/")
-
+        if year_value["year"] == year:
+            flash("Year already exist")
+            return redirect("/")
+    
     # Update year in database
     db.execute("INSERT INTO years (user_id, year) VALUES (?, ?)", session["user_id"], year)
 
@@ -208,16 +206,16 @@ def months():
 
     # Validate year
     year = int(request.form.get("year"))
-
-    list_of_years = []
     years = db.execute("SELECT year FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
-    for year_value in years:
-        list_of_years.append(year_value["year"])
 
-    if year not in list_of_years:
+    # Check if year exist
+    for year_value in years:
+        if year_value["year"] == year:
+            break
+    else:
         flash("Invalid year")
         return redirect("/")
-    
+
     # Create a list of years
     list_of_months = []
     months = db.execute("""SELECT month, monthly_expenses 
@@ -234,15 +232,14 @@ def months():
     return render_template("months.html", year=year, months=list_of_months)
 
 
-@app.route("/addmonth", methods=["POST"])
+@app.route("/add_month", methods=["POST"])
 @login_required
-def addmonth():
+def add_month():
     """Add month"""
 
     year = int(request.form.get("year"))
 
-    list_of_months = []
-    month_dictionaries= []
+    list_of_months= []
     months = db.execute("""SELECT month, monthly_expenses 
                                 FROM months
                                 JOIN years ON years.id = months.year_id
@@ -251,24 +248,26 @@ def addmonth():
                                 AND years.year = ?
                                 ORDER BY month_order.month_order""", session["user_id"], year)
     
-    for month_value in months:
-        list_of_months.append(month_value["month"])
-        month_dictionaries.append(month_value)
-
     # Validate month
     try:
         month = request.form.get("month")
+        month_exist = False
+        for month_value in months:
+            list_of_months.append(month_value)
+            if month_value["month"] == month:
+                month_exist = True
         if not month or check_month(month) == False:
-            flash(f"Invalid month input")
-            return render_template("months.html", year=year, months=month_dictionaries)
+            flash("Invalid month input")
+            return render_template("months.html", year=year, months=list_of_months)
+
     except ValueError:
-        flash(f"Invalid month input")
-        return render_template("months.html", year=year, months=month_dictionaries)
+            flash(f"Invalid month input")
+            return render_template("months.html", year=year, months=list_of_months)
 
     # Check if month of the year of the user already exist
-    if month in list_of_months:
+    if month_exist:
         flash("Month already exist")
-        return render_template("months.html", year=year, months=month_dictionaries)
+        return render_template("months.html", year=year, months=list_of_months)
     
     # Update month in database
     db.execute("INSERT INTO months (year_id, month) VALUES ((SELECT id FROM years WHERE user_id = ? AND year = ?), ?)", session["user_id"], year, month)
@@ -281,9 +280,108 @@ def addmonth():
                                 AND years.year = ?
                                 ORDER BY month_order.month_order""", session["user_id"], year)
     
-    # Create a new month's list of dictionaries
-    month_dictionaries.clear()
+    # Create a new list of months (dict)
+    list_of_months.clear()
     for month_value in months:
-        month_dictionaries.append(month_value)
+        list_of_months.append(month_value)
 
-    return render_template("months.html", year=year, months=month_dictionaries)
+    return render_template("months.html", year=year, months=list_of_months)
+
+
+@app.route("/days", methods=["POST"])
+@login_required
+def days():
+    """Check days in the month"""
+
+    year = int(request.form.get("year"))
+
+    # Validate month
+    month = request.form.get("month")
+    months = db.execute("""SELECT month, monthly_expenses 
+                                FROM months
+                                JOIN years ON years.id = months.year_id
+                                JOIN month_order ON months.month = month_order.month_name
+                                WHERE years.user_id = ?
+                                AND years.year = ?
+                                ORDER BY month_order.month_order""", session["user_id"], year)
+    
+    # Check if month exist
+    for month_value in months:
+        if month_value["month"] == month:
+            break
+    else:
+        return render_template("error.html", error="month not found")
+    
+    # Create a list of days
+    list_of_days = []
+    days = db.execute("""SELECT days.day, days.daily_expenses
+                            FROM months
+                            JOIN days ON  days.month_id = months.id
+                            JOIN years ON years.id =  months.year_id
+                            WHERE years.user_id = ?
+                            AND years.year = ?
+                            ORDER BY days.day""", session['user_id'], year)
+    for day_value in days:
+        list_of_days.append(day_value)
+
+    print(f"list of days = {list_of_days}")
+    
+    # Create a list of years
+    return render_template("days.html", year=year, month=month, days=list_of_days)
+
+
+@app.route("/add_day", methods=["POST"])
+@login_required
+def add_day():
+    """Add day"""
+
+    month = request.form.get("month")
+    year = int(request.form.get("year"))
+
+    list_of_days = []
+    days = db.execute("""SELECT days.day, days.daily_expenses
+                            FROM months
+                            JOIN days ON  days.month_id = months.id
+                            JOIN years ON years.id =  months.year_id
+                            WHERE years.user_id = ?
+                            AND years.year = ?
+                            ORDER BY days.day""", session['user_id'], year)
+    # Validate day
+    try:
+        day = int(request.form.get("day"))
+        day_exist = False
+        for day_value in days:
+            list_of_days.append(day_value)
+            if day_value["day"] == day:
+                day_exist = True
+        if not check_day(year, month, day):
+            flash("Invalid day input")
+            return render_template("days.html", year=year, months=list_of_days)
+    except ValueError:
+        flash(f"Invalid day input")
+        return render_template("days.html", year=year, month=month, days=list_of_days)
+
+    # Check if day already exist
+    if day_exist:
+        flash("Day already exist")
+        return render_template("days.html", year=year,month=month, days=list_of_days)
+    
+    # Update day in the database
+    db.execute("""INSERT INTO days (month_id, day) 
+                    VALUES ((SELECT id FROM months WHERE year_id = (
+                        SELECT id FROM years WHERE user_id = ? AND year = ?) AND month = ?), ?)""", session["user_id"], year, month, day)
+    
+    # Create a new list of days (dict)
+    list_of_days.clear()
+    days = db.execute("""SELECT days.day, days.daily_expenses
+                        FROM months
+                        JOIN days ON  days.month_id = months.id
+                        JOIN years ON years.id =  months.year_id
+                        WHERE years.user_id = ?
+                        AND years.year = ?
+                        ORDER BY days.day""", session['user_id'], year)
+    
+    for day_value in days:
+        list_of_days.append(day_value)
+    
+    return render_template("days.html", year=year, month=month, days=list_of_days)
