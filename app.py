@@ -201,9 +201,9 @@ def addyear():
     return redirect("/") 
 
 
-@app.route("/checkyear", methods=["POST"])
+@app.route("/months", methods=["POST"])
 @login_required
-def checkyear():
+def months():
     """Check months in the year"""
 
     # Validate year
@@ -273,17 +273,17 @@ def addmonth():
     # Update month in database
     db.execute("INSERT INTO months (year_id, month) VALUES ((SELECT id FROM years WHERE user_id = ? AND year = ?), ?)", session["user_id"], year, month)
 
-    months_check = db.execute("""SELECT month, monthly_expenses 
-                                    FROM months
-                                    JOIN years ON years.id = months.year_id
-                                    JOIN month_order ON months.month = month_order.month_name
-                                    WHERE years.user_id = ?
-                                    AND years.year = ?
-                                    ORDER BY month_order.month_order""", session["user_id"], year)
+    months = db.execute("""SELECT month, monthly_expenses 
+                                FROM months
+                                JOIN years ON years.id = months.year_id
+                                JOIN month_order ON months.month = month_order.month_name
+                                WHERE years.user_id = ?
+                                AND years.year = ?
+                                ORDER BY month_order.month_order""", session["user_id"], year)
     
     # Create a new month's list of dictionaries
     month_dictionaries.clear()
-    for month_value in months_check:
+    for month_value in months:
         month_dictionaries.append(month_value)
 
     return render_template("months.html", year=year, months=month_dictionaries)

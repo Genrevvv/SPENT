@@ -6,7 +6,7 @@
 
 {% block main %}
             <div class="parent-div">
-
+                
                 <div class="main-content">
                     <div class="main-form">
                         <h2>Add a year</h2>
@@ -36,12 +36,12 @@
                                 {% for year in years %}
                                     <tr>
                                         <td>
-                                            <form action="/checkyear" method="post">
+                                            <form action="/months" method="post">
                                                 <input name="year" value="{{ year['year'] }}" type="hidden">
                                                 <button type="submit">{{ year["year"] }}</button></td>
                                             </form>
                                         <td>
-                                            <form action="/checkyear" method="post">
+                                            <form action="/months" method="post">
                                                 <input name="year" value="{{ year['year'] }}" type="hidden">
                                                 <button type="submit">{{ year["annual_expenses"] | format_currency }}</button></td>
                                             </form>
