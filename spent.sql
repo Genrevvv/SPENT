@@ -12,7 +12,6 @@ CREATE TABLE years (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
     year NOT NULL,
-    annual_expenses NUMERIC NOT NULL DEFAULT 0.00,
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
@@ -20,7 +19,6 @@ CREATE TABLE months (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     year_id TEXT NOT NULL,
     month TEXT NOT NULL,
-    monthly_expenses NUMERIC NOT NULL DEFAULT 0.00,
     FOREIGN KEY (year_id) REFERENCES years (id)
 );
 
@@ -29,6 +27,34 @@ CREATE TABLE month_order (
     month_order INTEGER NOT NULL
 );
 
+
+CREATE TABLE days (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    month_id INTEGER NOT NULL,
+    day INTEGER NOT NULL,
+    FOREIGN KEY (month_id) REFERENCES months (id)
+);
+
+CREATE TABLE spent (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    day_id INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    amount NUMERIC NOT NULL DEFAULT 0.00,
+    FOREIGN KEY (day_id) REFERENCES days (id)
+);
+
+"""Not yet added"""
+CREATE TABLE dates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    year_id INTEGER NOT NULL,
+    month INTEGER,
+    day INTEGER,
+    FOREIGN KEY (year_id) REFERENCES years (id)
+);
+
+
+
+--queries
 INSERT INTO month_order (month_name, month_order)
 VALUES 
     ('January', 1),
@@ -43,33 +69,7 @@ VALUES
     ('October', 10),
     ('November', 11),
     ('December', 12);
-
-CREATE TABLE days (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    month_id INTEGER NOT NULL,
-    day INTEGER NOT NULL,
-    daily_expenses NUMERIC NOT NULL DEFAULT 0.00,
-    FOREIGN KEY (month_id) REFERENCES months (id)
-);
-
-"""Not yet added"""
-CREATE TABLE dates (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    year_id INTEGER NOT NULL,
-    month INTEGER,
-    day INTEGER,
-    FOREIGN KEY (year_id) REFERENCES years (id)
-);
-
-CREATE TABLE spent (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    day_id INTEGER NOT NULL,
-    category TEXT NOT NULL,
-    amount NUMERIC NOT NULL DEFAULT 0.00,
-    FOREIGN KEY (day_id) REFERENCES days (id)
-);
-
---queries
+    
 SELECT days.day, days.daily_expenses
     FROM months
     JOIN days ON  days.month_id = months.id
@@ -99,3 +99,11 @@ VALUES ((SELECT days.id
             AND years.year = ?
             AND months.month = ?
             AND days.day = ?), ?, ?);
+
+SELECT sum(spent.amount) AS expenses
+    FROM spent
+    JOIN days ON days.id = spent.day_id
+    JOIN months ON months.id = days.month_id
+    JOIN years ON years.id = months.year_id
+    WHERE years.user_id = 1
+    ORDER BY years.year DESC

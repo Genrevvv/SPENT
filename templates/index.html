@@ -41,10 +41,17 @@
                                                 <button type="submit">{{ year["year"] }}</button></td>
                                             </form>
                                         <td>
-                                            <form action="/months" method="post">
-                                                <input name="year" value="{{ year['year'] }}" type="hidden">
-                                                <button type="submit">{{ year["annual_expenses"] | format_currency }}</button></td>
-                                            </form>
+                                            {% if not year["expenses"] %}
+                                                <form action="/months" method="post">
+                                                    <input name="year" value="{{ year['year'] }}" type="hidden">
+                                                    <button type="submit">{{ 0 | format_currency }}</button></td>
+                                                </form>
+                                            {% else %} 
+                                                <form action="/months" method="post">
+                                                    <input name="year" value="{{ year['year'] }}" type="hidden">
+                                                    <button type="submit">{{ year["expenses"] | format_currency }}</button></td>
+                                                </form>
+                                            {% endif %}
                                         </td>
                                     </tr>                                    
                                 {%  endfor %}

@@ -25,7 +25,7 @@ def validate_day_range(year, month, day):
 
 # check if day exist
 def check_day(year, month, day):
-    days = db.execute("""SELECT days.day, days.daily_expenses
+    days = db.execute("""SELECT days.day
                         FROM months
                         JOIN days ON  days.month_id = months.id
                         JOIN years ON years.id =  months.year_id
@@ -55,7 +55,7 @@ def check_month_value(month):
 
 # Check if month exist
 def check_month(year, month):
-    months = db.execute("""SELECT month, monthly_expenses 
+    months = db.execute("""SELECT month 
                                 FROM months
                                 JOIN years ON years.id = months.year_id
                                 JOIN month_order ON months.month = month_order.month_name
@@ -134,15 +134,22 @@ def login_required(f):
 
 
 # Validate category
-def validate_category(category):
+def validate_category(year, month, day, category, list_of_categories):
     categories = ["Bills", "Food", "Transportation", "Healthcare", "Education", "Savings or Investments", "Other"]
 
-    
     for category_value in categories:
         if category_value == category:
-            return 0
+            break
+    else:
+        return error_occured("Invalid category option", 400)
+    
+    # Check if category already exists
+    for category_value in list_of_categories:
+        if category_value["category"] == category:
+                flash("Category already exist")
+                return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)
         
-    return 1
+    return 0
 
 
 # Validate day input

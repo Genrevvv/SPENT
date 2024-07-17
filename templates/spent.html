@@ -12,7 +12,6 @@
                         <h2>Add Category</h2>
                         <form action="/add_category" method="post">
                             <div class="form-input">
-                                <input name="amount" placeholder="Input an amount" type="number" autocomplete="off" autofocus>
                                 <select name="category">
                                     <option selected disabled>Select a category</option>
                                     <option value="Bills">Bills</option>
@@ -23,6 +22,7 @@
                                     <option value="Savings or Investments">Savings or Investments</option>
                                     <option value="Other">Other</option>
                                 </select>
+                                <input name="amount" placeholder="Input an amount" type="number" autocomplete="off" autofocus>
                                 <input name="year" value="{{ year }}" type="hidden">                         
                                 <input name="month" value="{{ month }}" type="hidden">
                                 <input name="day" value="{{ day }}" type="hidden">                         
