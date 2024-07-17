@@ -6,17 +6,7 @@ from functools import wraps
 
 # Set SQLite database
 db = SQL("sqlite:///spent.db")
-
-# Check category
-def check_category(category):
-    categories = ["Bills", "Food", "Transportation", "Healthcare", "Education", "Savings or Investments", "Other"]
-
-    if category in categories:
-        return True
-    
-    return False
         
-
 # Get the day range of a specific month of a year (Assisted with AI)
 def validate_day_range(year, month, day):
     month = convert_month(month)
@@ -47,7 +37,7 @@ def check_day(year, month, day):
     for day_value in days:
         if day_value["day"] == day:
             break
-    else: 
+    else:
         return error_occured("day not found", 404)
     
     return 0
@@ -96,6 +86,7 @@ def check_year(year):
     
     return 0
 
+
 # Coonvert month str to int
 def convert_month(month):
     months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -140,6 +131,18 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+# Validate category
+def validate_category(category):
+    categories = ["Bills", "Food", "Transportation", "Healthcare", "Education", "Savings or Investments", "Other"]
+
+    
+    for category_value in categories:
+        if category_value == category:
+            return 0
+        
+    return 1
 
 
 # Validate day input

@@ -4,7 +4,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
-from helpers import check_day, check_month, check_year, error_occured, format_currency, login_required, validate_day, validate_month, validate_year
+from helpers import check_day, check_month, check_year, error_occured, format_currency, login_required, validate_category, validate_day, validate_month, validate_year
 
 
 # Configure application
@@ -16,6 +16,7 @@ app.jinja_env.filters["check_month"] = check_month
 app.jinja_env.filters["check_year"] = check_year
 app.jinja_env.filters["error_occured"] = error_occured
 app.jinja_env.filters["format_currency"] = format_currency
+app.jinja_env.filters["validate_category"] = validate_category
 app.jinja_env.filters["validate_day"] = validate_day
 app.jinja_env.filters["validate_month"] = validate_month
 app.jinja_env.filters["validate_year"] = validate_year
@@ -186,7 +187,8 @@ def add_year():
         if validator != 0:
             return validator
     except ValueError:
-        return error_occured("Invalid year input", 400)
+        flash("Invalid year input")
+        return redirect("/")
 
     # Update year in database
     db.execute("INSERT INTO years (user_id, year) VALUES (?, ?)", session["user_id"], year)
@@ -236,7 +238,7 @@ def add_month():
         year = int(request.form.get("year"))
         validator = check_year(year)
         if validator != 0:
-            return validator(year)
+            return validator
     except ValueError:
         return error_occured("year not found", 404)
     
@@ -259,7 +261,8 @@ def add_month():
         if validator != 0:
             return validator
     except ValueError:
-        return error_occured("Invalid month input", 400)
+        flash("Invalid month input")
+        return render_template("months.html", year=year, months=list_of_months)
     
     # Update month in database
     db.execute("INSERT INTO months (year_id, month) VALUES ((SELECT id FROM years WHERE user_id = ? AND year = ?), ?)", session["user_id"], year, month)
@@ -291,7 +294,7 @@ def days():
         year = int(request.form.get("year"))
         validator = check_year(year)
         if validator != 0:
-            return validator(year)
+            return validator
     except ValueError:
         return error_occured("year not foud year", 404)
 
@@ -330,7 +333,7 @@ def add_day():
         year = int(request.form.get("year"))
         validator = check_year(year)
         if validator != 0:
-            return validator(year)
+            return validator
     except ValueError:
         return error_occured("year not found", 404)
     
@@ -364,11 +367,12 @@ def add_day():
         if validator != 0:
             return validator
     except ValueError:
-        return error_occured("Invalid day input", 400)
+        flash("Invalid day input")
+        return render_template("days.html", year=year, month=month, days=list_of_days)
     
     # Update day in the database
     db.execute("""INSERT INTO days (month_id, day) 
-                    VALUES ((SELECT id FROM months WHERE year_id = (
+                  VALUES ((SELECT id FROM months WHERE year_id = (
                         SELECT id FROM years WHERE user_id = ? AND year = ?) AND month = ?), ?)""", session["user_id"], year, month, day)
     
     # Create a new list of days (dict)
@@ -398,7 +402,7 @@ def spent():
         year = int(request.form.get("year"))
         validator = check_year(year)
         if validator != 0:
-            return validator(year)
+            return validator
     except ValueError:
         return error_occured("year not found", 404)
     
@@ -436,5 +440,99 @@ def spent():
     
     for category in categories:
         list_of_categories.append(category)
+
+    return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)
+
+
+@app.route("/add_category", methods=["POST"])
+@login_required
+def add_category():
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator(year)
+    except ValueError:
+        return error_occured("year not found", 404)
+    
+    # check month in db
+    try:
+        month = request.form.get("month")
+        print(f"The month is {month}")
+        validator = check_month(year, month)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("month not found", 404)
+    
+    # check day in db
+    try:
+        day = int(request.form.get("day"))
+        validator = check_day(year, month, day)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("day not found", 404)
+    
+    # Create a list of categories
+    list_of_categories = []
+    categories = db.execute("""SELECT spent.category, spent.amount 
+                                    FROM spent
+                                    JOIN days ON days.id = spent.day_id
+                                    JOIN months ON months.id = days.month_id
+                                    JOIN years ON years.id = months.year_id
+                                    WHERE years.user_id = ?
+                                    AND years.year = ?
+                                    AND months.month = ?
+                                    AND days.day = ?
+                                    ORDER BY spent.amount DESC""", session["user_id"], year, month, day)
+    for category in categories:
+        list_of_categories.append(category)
+    
+    # Validate amount input
+    try:
+        amount = request.form.get("amount")
+    except ValueError:
+        flash("Invalid amount input")
+        return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)
+
+    # Validate category input
+    try:
+        category = request.form.get("category")
+        validator = validate_category(category)
+        if validator != 0:
+            flash("Invalid category option")
+            return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)
+    except ValueError:
+        flash("Invalid amount input")
+        return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)
+
+    db.execute("""INSERT INTO spent (day_id, category, amount)
+                    VALUES ((SELECT days.id
+                                FROM days 
+                                JOIN months ON months.id = days.month_id
+                                JOIN years ON years.id = months.year_id
+                                WHERE years.user_id = ?
+                                AND years.year = ?
+                                AND months.month = ?
+                                AND days.day = ?), ?, ?)""", session["user_id"], year, month, day, category, amount)
+    
+    # Create a new list of categories (dict)
+    list_of_categories.clear()
+    categories = db.execute("""SELECT spent.category, spent.amount 
+                                    FROM spent
+                                    JOIN days ON days.id = spent.day_id
+                                    JOIN months ON months.id = days.month_id
+                                    JOIN years ON years.id = months.year_id
+                                    WHERE years.user_id = ?
+                                    AND years.year = ?
+                                    AND months.month = ?
+                                    AND days.day = ?
+                                    ORDER BY spent.amount DESC""", session["user_id"], year, month, day)
+    for category in categories:
+        list_of_categories.append(category)
+        
+    print(list_of_categories)
 
     return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)

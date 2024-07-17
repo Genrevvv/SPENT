@@ -80,12 +80,22 @@ SELECT days.day, days.daily_expenses
     ORDER BY days.day;
 
 SELECT spent.category, spent.amount 
-    FROM days
-    JOIN spent ON spent.day_id = days.id
-    JOIN months ON months.id = days.month_id
-    JOIN years ON years.id = months.year_id
-    WHERE years.user_id = ?
-    AND years.year = ?
-    AND months.month = ?
-    AND days.day = ?
-    ORDER BY spent.amount DESC;
+        FROM spent
+        JOIN days ON days.id = spent.day_id
+        JOIN months ON months.id = days.month_id
+        JOIN years ON years.id = months.year_id
+        WHERE years.user_id = ?
+        AND years.year = ?
+        AND months.month = ?
+        AND days.day = ?
+        ORDER BY spent.amount DESC;
+
+INSERT INTO spent (day_id, category, amount)
+VALUES ((SELECT days.id
+            FROM days 
+            JOIN months ON months.id = days.month_id
+            JOIN years ON years.id = months.year_id
+            WHERE years.user_id = ?
+            AND years.year = ?
+            AND months.month = ?
+            AND days.day = ?), ?, ?);

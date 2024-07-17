@@ -10,8 +10,9 @@
                 <div class="main-content">
                     <div class="main-form">
                         <h2>Add Category</h2>
-                        <form action="/add_day" method="post">
+                        <form action="/add_category" method="post">
                             <div class="form-input">
+                                <input name="amount" placeholder="Input an amount" type="number" autocomplete="off" autofocus>
                                 <select name="category">
                                     <option selected disabled>Select a category</option>
                                     <option value="Bills">Bills</option>
@@ -40,7 +41,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {% if not days %}
+                            {% if not categories %}
                                 <tr>
                                     <td><button>Add a category to display</button></td>
                                     <td><button>some amount</button></td>
