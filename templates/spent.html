@@ -45,6 +45,7 @@
                                 <tr>
                                     <td><button>Add a category to display</button></td>
                                     <td><button>some amount</button></td>
+                                    <td></td>
                                 </tr>
                             {% else %}
                                 {% for category in categories %}
@@ -59,6 +60,15 @@
                                             <input name="month" value="{{ month }}" type="hidden">
                                             <input name="day" value="{{ day }}" type="hidden">
                                             <button type="submit">{{ category["amount"] | float | format_currency }}</button></td>
+                                        </td>
+                                        <td>
+                                            <form action="/delete_category" method="post">
+                                                <input name="year" value="{{ year }}" type="hidden">
+                                                <input name="month" value="{{ month }}" type="hidden">
+                                                <input name="day" value="{{ day }}" type="hidden">   
+                                                <input name="spent_id" value="{{ category['id'] }}" type="hidden">                                                <input name="year_id" value="{{ year['id'] }}" type="hidden">
+                                                <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button></td>
+                                            </form>
                                         </td>
                                     </tr>                                    
                                 {%  endfor %}

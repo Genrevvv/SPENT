@@ -196,18 +196,22 @@ a:visited {
     cursor: pointer;
 }
 
- table {
+table {
     background-color: transparent;
-    margin: 0 auto;
-    width: 80%;
+    margin-left: 9%;
+    width: 89%;
  }
 
-table th:nth-child(1) {
-    width: 60%;
+ table th:nth-child(1) {
+    width: 55%;
 }
 
 table th:nth-child(2) {
-    width: 40%;
+    width: 38%;
+}
+
+table th:nth-child(3) {
+    width: 7%;
 }
 
 table th,
@@ -224,9 +228,18 @@ table td {
     background-color: #f1f0f0;
 }
 
+table td:nth-child(3) {
+    background-color: transparent;
+}
+
 table td:hover {
     cursor: pointer;
     background-color: #d1cece;
+}
+
+table td:nth-child(3):hover {
+    cursor: default;
+    background-color: transparent;
 }
 
 table thead tr {
@@ -249,12 +262,25 @@ table td button:hover {
 .header {
     background-color: #67a6e9;
     border: 1px solid #0777ee;
-    margin: 0 auto;
-    width: 79.2%;
-    color: white;
     padding: 0.5rem 0;
+    margin: 0;
+    margin-left: 9%;
+    width: 82.1%;
+    color: white;
 }
 
 .header:hover {
     background-color: #4996e9;
+}
+
+.icon-container {
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.fa-trash {
+    color: red;
+    margin-left: 0.5rem;
+    font-size: 1.3rem;
 }

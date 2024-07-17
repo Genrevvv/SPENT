@@ -47,6 +47,7 @@
                                 <tr>
                                     <td><button>Add a month to display</button></td>
                                     <td><button>some amount</button></td>
+                                    <td></td>
                                 </tr>
                             {% else %}
                                 {% for month in months %}
@@ -55,13 +56,29 @@
                                             <form action="/days" method="post">
                                                 <input name="year" value="{{ year }}" type="hidden">
                                                 <input name="month" value="{{ month['month'] }}" type="hidden">
-                                                <button type="submit">{{ month["month"] }}</button></td>
+                                                <button type="submit">{{ month["month"] }}</button>
                                             </form>
+                                        </td>
                                         <td>
+                                            {% if not month["expenses"] %}
                                             <form action="/days" method="post">
                                                 <input name="year" value="{{ year }}" type="hidden">
                                                 <input name="month" value="{{ month['month'] }}" type="hidden">
-                                                <button type="submit">{{ month["expenses"] | float | format_currency }}</button></td>
+                                                <button type="submit">{{ 0 | format_currency }}</button></td>
+                                            </form>
+                                            {% else %}
+                                                <form action="/days" method="post">
+                                                    <input name="year" value="{{ year }}" type="hidden">
+                                                    <input name="month" value="{{ month['month'] }}" type="hidden">
+                                                    <button type="submit">{{ month["expenses"] | format_currency }}</button></td>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form action="/delete_month" method="post">
+                                                <input name="month_id" value="{{ month['id'] }}" type="hidden">
+                                                <input name="year" value="{{ year }}" type="hidden">
+                                                <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button></td>
                                             </form>
                                         </td>
                                     </tr>                                    

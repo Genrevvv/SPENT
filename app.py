@@ -53,7 +53,7 @@ def index():
     
     # Create a list of years
     list_of_years = []
-    years = db.execute("""SELECT years.year AS year, SUM(spent.amount) AS expenses
+    years = db.execute("""SELECT years.id AS id, years.year AS year, SUM(spent.amount) AS expenses
                                 FROM years
                                 LEFT JOIN months ON months.year_id = years.id
                                 LEFT JOIN days ON days.month_id = months.id
@@ -64,8 +64,6 @@ def index():
                                 """, session["user_id"]) # Idea by chatGPT (LEFT JOIN)
     for year in years:
         list_of_years.append(year)
-
-    print(list_of_years)
     
     return render_template("index.html", years=list_of_years)
 
@@ -223,7 +221,7 @@ def months():
     """Load months"""
     # Create a list of years
     list_of_months = []
-    months = db.execute("""SELECT months.month AS month, SUM(spent.amount) AS expenses
+    months = db.execute("""SELECT months.id AS id, months.month AS month, SUM(spent.amount) AS expenses
                                 FROM months
                                 LEFT JOIN years ON years.id = months.year_id
                                 LEFT JOIN month_order ON months.month = month_order.month_name
@@ -255,7 +253,7 @@ def add_month():
     
     # Get list of months
     list_of_months= []
-    months = db.execute("""SELECT months.month AS month, SUM(spent.amount) AS expenses
+    months = db.execute("""SELECT months.id AS id, months.month AS month, SUM(spent.amount) AS expenses
                                 FROM months
                                 LEFT JOIN years ON years.id = months.year_id
                                 LEFT JOIN month_order ON months.month = month_order.month_name
@@ -282,7 +280,7 @@ def add_month():
     db.execute("INSERT INTO months (year_id, month) VALUES ((SELECT id FROM years WHERE user_id = ? AND year = ?), ?)", session["user_id"], year, month)
 
     list_of_months = []
-    months = db.execute("""SELECT months.month AS month, SUM(spent.amount) AS expenses
+    months = db.execute("""SELECT months.id AS id, months.month AS month, SUM(spent.amount) AS expenses
                                 FROM months
                                 LEFT JOIN years ON years.id = months.year_id
                                 LEFT JOIN month_order ON months.month = month_order.month_name
@@ -315,7 +313,7 @@ def days():
     except ValueError:
         return error_occured("year not foud year", 404)
 
-    # check month in db
+    # Check month in db
     try:
         month = request.form.get("month")
         validator = check_month(year, month)
@@ -326,7 +324,7 @@ def days():
     
     # Create a list of days
     list_of_days = []
-    days = db.execute("""SELECT days.day AS day, SUM(spent.amount) AS expenses
+    days = db.execute("""SELECT days.id AS id, days.day AS day, SUM(spent.amount) AS expenses
                             FROM months
                             LEFT JOIN years ON years.id =  months.year_id
                             LEFT JOIN days ON  days.month_id = months.id
@@ -338,6 +336,8 @@ def days():
                             ORDER BY days.day""", session['user_id'], year, month)
     for day_value in days:
         list_of_days.append(day_value)
+
+    print(list_of_days)
     
     return render_template("days.html", year=year, month=month, days=list_of_days)
 
@@ -367,7 +367,7 @@ def add_day():
         return error_occured("month not found", 404)
     
     list_of_days = []
-    days = db.execute("""SELECT days.day AS day, SUM(spent.amount) AS expenses
+    days = db.execute("""SELECT days.id AS id, days.day AS day, SUM(spent.amount) AS expenses
                             FROM months
                             LEFT JOIN years ON years.id =  months.year_id
                             LEFT JOIN days ON  days.month_id = months.id
@@ -398,7 +398,7 @@ def add_day():
     
     # Create a new list of days (dict)
     list_of_days.clear()
-    days = db.execute("""SELECT days.day AS day, SUM(spent.amount) AS expenses
+    days = db.execute("""SELECT days.id AS id, days.day AS day, SUM(spent.amount) AS expenses
                             FROM months
                             LEFT JOIN years ON years.id =  months.year_id
                             LEFT JOIN days ON  days.month_id = months.id
@@ -450,7 +450,7 @@ def spent():
 
     # Create a list of categories
     list_of_categories = []
-    categories = db.execute("""SELECT spent.category, spent.amount 
+    categories = db.execute("""SELECT spent.id AS id, spent.category, spent.amount 
                                     FROM spent
                                     JOIN days ON days.id = spent.day_id
                                     JOIN months ON months.id = days.month_id
@@ -490,7 +490,7 @@ def add_category():
     except ValueError:
         return error_occured("month not found", 404)
     
-    # check day in db
+    # Check day in db
     try:
         day = int(request.form.get("day"))
         validator = check_day(year, month, day)
@@ -501,7 +501,7 @@ def add_category():
     
     # Create a list of categories
     list_of_categories = []
-    categories = db.execute("""SELECT spent.category, spent.amount 
+    categories = db.execute("""SELECT spent.id AS id, spent.category, spent.amount 
                                     FROM spent
                                     JOIN days ON days.id = spent.day_id
                                     JOIN months ON months.id = days.month_id
@@ -544,7 +544,7 @@ def add_category():
     
     # Create a new list of categories (dict)
     list_of_categories.clear()
-    categories = db.execute("""SELECT spent.category, spent.amount 
+    categories = db.execute("""SELECT spent.id AS id, spent.category, spent.amount 
                                     FROM spent
                                     JOIN days ON days.id = spent.day_id
                                     JOIN months ON months.id = days.month_id
@@ -558,4 +558,174 @@ def add_category():
     for category in categories:
         list_of_categories.append(category)
         
+    return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)
+
+
+@app.route("/delete_year", methods=["POST"])
+@login_required
+def delete_year():
+    # Check year in db
+    try:
+        year_id = int(request.form.get("year_id"))
+    except ValueError:
+        return error_occured("Invalid year id", 400)
+
+    # Delete year and everything related to it
+    db.execute("DELETE FROM spent WHERE day_id IN (SELECT id FROM days WHERE month_id IN (SELECT id FROM months WHERE year_id = :year_id))", year_id=year_id)
+    db.execute("DELETE FROM days WHERE month_id IN (SELECT id FROM months WHERE year_id = :year_id)", year_id=year_id)
+    db.execute("DELETE FROM months WHERE year_id = :year_id", year_id=year_id)
+    db.execute("DELETE FROM years WHERE id = :year_id", year_id=year_id)
+
+    return redirect("/")
+
+
+@app.route("/delete_month", methods=["POST"])
+@login_required
+def delete_month():
+
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("year not found", 404)
+    
+    # Check year in db
+    try:
+        month_id = int(request.form.get("month_id"))
+    except ValueError:
+        return error_occured("Invalid month id", 400)
+
+    # Delete month and everything related to it
+    db.execute("DELETE FROM spent WHERE day_id IN (SELECT id FROM days WHERE month_id = :month_id)", month_id=month_id)
+    db.execute("DELETE FROM days WHERE month_id = :month_id", month_id=month_id)
+    db.execute("DELETE FROM months WHERE id = :month_id", month_id=month_id)
+
+    
+    # Get list of months
+    list_of_months= []
+    months = db.execute("""SELECT months.id AS id, months.month AS month, SUM(spent.amount) AS expenses
+                                FROM months
+                                LEFT JOIN years ON years.id = months.year_id
+                                LEFT JOIN month_order ON months.month = month_order.month_name
+                                LEFT JOIN days ON days.month_id = months.id
+                                LEFT JOIN spent ON spent.day_id = days.id
+                                WHERE years.user_id = ?
+                                AND years.year = ?
+                                GROUP BY months.month
+                                ORDER BY month_order.month_order""", session["user_id"], year)
+    
+    for month_value in months:
+        list_of_months.append(month_value)
+
+    return render_template("months.html", year=year, months=list_of_months)
+
+
+@app.route("/delete_day", methods=["POST"])
+@login_required
+def delete_day():
+    # Check year in db
+    try:
+        day_id = int(request.form.get("day_id"))
+    except ValueError:
+        return error_occured("Invalid day id", 400)
+    
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("year not foud year", 404)
+
+    # Check month in db
+    try:
+        month = request.form.get("month")
+        validator = check_month(year, month)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("month not found", 404)
+
+    # Delete day and everything related to it
+    db.execute("DELETE FROM spent WHERE day_id = :day_id", day_id=day_id)
+    db.execute("DELETE FROM days WHERE id = :day_id", day_id=day_id)
+
+    # Create a list of days
+    list_of_days = []
+    days = db.execute("""SELECT days.id AS id, days.day AS day, SUM(spent.amount) AS expenses
+                            FROM months
+                            LEFT JOIN years ON years.id =  months.year_id
+                            LEFT JOIN days ON  days.month_id = months.id
+                            LEFT JOIN spent ON spent.day_id = days.id
+                            WHERE years.user_id = ?
+                            AND years.year = ?
+                            AND months.month = ?
+                            GROUP BY days.day
+                            ORDER BY days.day""", session['user_id'], year, month)
+    for day_value in days:
+        list_of_days.append(day_value)
+
+    return render_template("days.html", year=year, month=month, days=list_of_days)
+
+
+
+@app.route("/delete_category", methods=["POST"])
+@login_required
+def delete_category():
+    # Check year in db
+    try:
+        spent_id = int(request.form.get("spent_id"))
+    except ValueError:
+        return error_occured("Invalid category id", 400)
+    
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("year not foud year", 404)
+
+    # Check month in db
+    try:
+        month = request.form.get("month")
+        validator = check_month(year, month)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("month not found", 404)
+    
+    # Check day in db
+    try:
+        day = int(request.form.get("day"))
+        validator = check_day(year, month, day)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("day not found", 404)
+
+    # Delete day and everything related to it
+    db.execute("DELETE FROM spent WHERE id = :spent_id", spent_id=spent_id)
+
+    # Create a list of categories
+    list_of_categories = []
+    categories = db.execute("""SELECT spent.id AS id, spent.category, spent.amount 
+                                    FROM spent
+                                    JOIN days ON days.id = spent.day_id
+                                    JOIN months ON months.id = days.month_id
+                                    JOIN years ON years.id = months.year_id
+                                    WHERE years.user_id = ?
+                                    AND years.year = ?
+                                    AND months.month = ?
+                                    AND days.day = ?
+                                    GROUP BY spent.category
+                                    ORDER BY spent.amount DESC""", session["user_id"], year, month, day)
+    for category in categories:
+        list_of_categories.append(category)
+
     return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)

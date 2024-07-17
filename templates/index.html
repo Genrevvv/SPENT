@@ -31,6 +31,7 @@
                                 <tr>
                                     <td><button>Add a year to display</button></td>
                                     <td><button>some amount</button></td>
+                                    <td></td>
                                 </tr>
                             {% else %}
                                 {% for year in years %}
@@ -46,12 +47,18 @@
                                                     <input name="year" value="{{ year['year'] }}" type="hidden">
                                                     <button type="submit">{{ 0 | format_currency }}</button></td>
                                                 </form>
-                                            {% else %} 
+                                            {% else %}
                                                 <form action="/months" method="post">
                                                     <input name="year" value="{{ year['year'] }}" type="hidden">
                                                     <button type="submit">{{ year["expenses"] | format_currency }}</button></td>
                                                 </form>
                                             {% endif %}
+                                        </td>
+                                        <td>
+                                            <form action="/delete_year" method="post">
+                                                <input name="year_id" value="{{ year['id'] }}" type="hidden">
+                                                <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button></td>
+                                            </form>
                                         </td>
                                     </tr>                                    
                                 {%  endfor %}
