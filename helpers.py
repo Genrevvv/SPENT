@@ -1,6 +1,7 @@
 from calendar import monthrange
 from cs50 import SQL
-from flask import redirect, render_template, request, session
+from datetime import datetime
+from flask import flash, redirect, render_template, request, session
 from functools import wraps
 
 # Set SQLite database
@@ -14,10 +15,10 @@ def check_category(category):
         return True
     
     return False
+        
 
 # Get the day range of a specific month of a year (Assisted with AI)
-def check_day(year, month, day):
-
+def validate_day_range(year, month, day):
     month = convert_month(month)
     
     if month == False:
@@ -33,8 +34,8 @@ def check_day(year, month, day):
     return True
 
 
-# Check month
-def check_month(month):
+# Check month value
+def check_month_value(month):
     months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
     if month in months:
@@ -42,6 +43,39 @@ def check_month(month):
     
     return False
 
+
+# Check if month exist
+def check_month(year, month):
+    months = db.execute("""SELECT month, monthly_expenses 
+                                FROM months
+                                JOIN years ON years.id = months.year_id
+                                JOIN month_order ON months.month = month_order.month_name
+                                WHERE years.user_id = ?
+                                AND years.year = ?
+                                ORDER BY month_order.month_order""", session["user_id"], year)
+    # Check if month exist
+    for month_value in months:
+        if month_value["month"] == month:
+            break
+    else:
+        return error_occured("month not found", 404)
+    
+    return 0
+
+
+# Check if year exist
+def check_year(year):
+    years = db.execute("SELECT year FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
+
+    # Check if year exist
+    for year_value in years:
+        if year_value["year"] == year:
+            break
+    else:
+        flash("Invalid year")
+        return redirect("/")
+    
+    return 0
 
 # Coonvert month str to int
 def convert_month(month):
@@ -54,8 +88,23 @@ def convert_month(month):
         print("bruh")
         return False
     
-    print(int_month)
     return int_month
+
+
+def error_occured(error_occured, status_code):
+    return render_template("error.html", error=error_occured, code=status_code)
+
+def format_currency(value):
+    # Check for user's currency
+    currency = db.execute("SELECT currency FROM users WHERE id = ?", session["user_id"])
+    currency = currency[0]["currency"] 
+    
+    # Format currency
+    if currency == "usd":
+        return f"${value:,.2f}"
+    elif currency == "php":
+        return f"₱{value:,.2f}"
+    
 
 # Confirm login (from finance pset)
 def login_required(f):
@@ -74,13 +123,57 @@ def login_required(f):
     return decorated_function
 
 
-def format_currency(value):
-    # Check for user's currency
-    currency = db.execute("SELECT currency FROM users WHERE id = ?", session["user_id"])
-    currency = currency[0]["currency"] 
+# Validate day input
+def validate_day(year, month, day, list_of_days):
+
+    if not validate_day_range(year, month, day):
+        flash("Invalid day input")
+        return render_template("days.html", year=year, month=month, days=list_of_days)
     
-    # Format currency
-    if currency == "usd":
-        return f"${value:,.2f}"
-    elif currency == "php":
-        return f"₱{value:,.2f}"
+    day_exist = False
+
+    for day_value in list_of_days:
+        if day_value["day"] == day:
+            day_exist = True
+
+    # Check if day already exist
+    if day_exist:
+        flash("Day already exist")
+        return render_template("days.html", year=year,month=month, days=list_of_days)
+
+    return 0
+
+# Validate month input
+def validate_month(year, month, list_of_months):
+    month_exist = False
+
+    # Validate input
+    if not month or not check_month_value(month):
+        flash("Invalid month input")
+        return render_template("months.html", year=year, months=list_of_months)
+
+    # Check if month of the year of the user already exist
+    for month_value in list_of_months:
+        if month_value["month"] == month:
+            month_exist = True
+
+    if month_exist:
+        flash("Month already exist")
+        return render_template("months.html", year=year, months=list_of_months)
+
+    return 0
+
+# Valdidate year input
+def validate_year(year):
+    if year < 1582 or year > datetime.now().year:
+        flash(f"Year must be between 1582 and {datetime.now().year}, inclusive.")
+        return redirect("/")
+
+    # Check if year for the user already exist
+    years = db.execute("SELECT year FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
+    for year_value in years:
+        if year_value["year"] == year:
+            flash("Year already exist")
+            return redirect("/")
+        
+    return 0

@@ -4,16 +4,20 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
-from helpers import check_day, check_month, login_required, format_currency
+from helpers import check_month, check_year, error_occured, format_currency, login_required, validate_day, validate_month, validate_year
 
 
 # Configure application
 app = Flask(__name__)
 
 # Custom filter
-app.jinja_env.filters["format_currency"] = format_currency
 app.jinja_env.filters["check_month"] = check_month
-app.jinja_env.filters["check_day"] = check_day
+app.jinja_env.filters["check_day"] = check_year
+app.jinja_env.filters["error_occured"] = error_occured
+app.jinja_env.filters["format_currency"] = format_currency
+app.jinja_env.filters["validate_day"] = validate_day
+app.jinja_env.filters["validate_month"] = validate_month
+app.jinja_env.filters["validate_year"] = validate_year
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
@@ -160,8 +164,7 @@ def setcurrency():
 
     # Validate user response
     if currency not in ["usd", "php"]:
-        flash("Invalid currency")
-        return render_template("/")
+        return error_occured("Invalid currency", 400)
     
     # Set currency
     db.execute("UPDATE users SET currency = ? WHERE id = ?", currency, session["user_id"])
@@ -175,23 +178,15 @@ def setcurrency():
 def add_year():
     """Add year"""
 
-    # Validate year
+    # Validate year input
     try:
         year = int(request.form.get("year"))
-        if year < 1582 or year > datetime.now().year:
-            flash(f"Year must be between 1582 and {datetime.now().year}, inclusive.")
-            return redirect("/")
+        validator = validate_year(year) 
+        if validator != 0:
+            return validator
     except ValueError:
-        flash("Invalid year input")
-        return redirect("/")
-    
-    # Check if year for the user already exist
-    years = db.execute("SELECT year FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
-    for year_value in years:
-        if year_value["year"] == year:
-            flash("Year already exist")
-            return redirect("/")
-    
+        return error_occured("Invalid year input", 400)
+
     # Update year in database
     db.execute("INSERT INTO years (user_id, year) VALUES (?, ?)", session["user_id"], year)
 
@@ -204,18 +199,16 @@ def add_year():
 def months():
     """Check months in the year"""
 
-    # Validate year
-    year = int(request.form.get("year"))
-    years = db.execute("SELECT year FROM years WHERE user_id = ? ORDER BY year DESC", session["user_id"])
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("Invalid year", 400)
 
-    # Check if year exist
-    for year_value in years:
-        if year_value["year"] == year:
-            break
-    else:
-        flash("Invalid year")
-        return redirect("/")
-
+    """Load months"""
     # Create a list of years
     list_of_months = []
     months = db.execute("""SELECT month, monthly_expenses 
@@ -237,8 +230,16 @@ def months():
 def add_month():
     """Add month"""
 
-    year = int(request.form.get("year"))
-
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator(year)
+    except ValueError:
+        return error_occured("Invalid year", 400)
+    
+    # Get list of months
     list_of_months= []
     months = db.execute("""SELECT month, monthly_expenses 
                                 FROM months
@@ -247,31 +248,22 @@ def add_month():
                                 WHERE years.user_id = ?
                                 AND years.year = ?
                                 ORDER BY month_order.month_order""", session["user_id"], year)
+    for month_value in months:
+        list_of_months.append(month_value)
     
-    # Validate month
+    # Validate month input
     try:
         month = request.form.get("month")
-        month_exist = False
-        for month_value in months:
-            list_of_months.append(month_value)
-            if month_value["month"] == month:
-                month_exist = True
-        if not month or check_month(month) == False:
-            flash("Invalid month input")
-            return render_template("months.html", year=year, months=list_of_months)
-
+        validator = validate_month(year, month, list_of_months)
+        if validator != 0:
+            return validator
     except ValueError:
-            flash(f"Invalid month input")
-            return render_template("months.html", year=year, months=list_of_months)
-
-    # Check if month of the year of the user already exist
-    if month_exist:
-        flash("Month already exist")
-        return render_template("months.html", year=year, months=list_of_months)
+        return error_occured("Invalid month input", 400)
     
     # Update month in database
     db.execute("INSERT INTO months (year_id, month) VALUES ((SELECT id FROM years WHERE user_id = ? AND year = ?), ?)", session["user_id"], year, month)
 
+    list_of_months = []
     months = db.execute("""SELECT month, monthly_expenses 
                                 FROM months
                                 JOIN years ON years.id = months.year_id
@@ -293,24 +285,23 @@ def add_month():
 def days():
     """Check days in the month"""
 
-    year = int(request.form.get("year"))
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator(year)
+    except ValueError:
+        return error_occured("Invalid year", 400)
 
-    # Validate month
-    month = request.form.get("month")
-    months = db.execute("""SELECT month, monthly_expenses 
-                                FROM months
-                                JOIN years ON years.id = months.year_id
-                                JOIN month_order ON months.month = month_order.month_name
-                                WHERE years.user_id = ?
-                                AND years.year = ?
-                                ORDER BY month_order.month_order""", session["user_id"], year)
-    
-    # Check if month exist
-    for month_value in months:
-        if month_value["month"] == month:
-            break
-    else:
-        return render_template("error.html", error="month not found")
+    # check month in db
+    try:
+        month = request.form.get("month")
+        validator = check_month(year, month)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("Invalid month", 400)
     
     # Create a list of days
     list_of_days = []
@@ -335,9 +326,24 @@ def days():
 def add_day():
     """Add day"""
 
-    month = request.form.get("month")
-    year = int(request.form.get("year"))
-
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator(year)
+    except ValueError:
+        return error_occured("Invalid year", 400)
+    
+    # check month in db
+    try:
+        month = request.form.get("month")
+        validator = check_month(year, month)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("Invalid month", 400)
+    
     list_of_days = []
     days = db.execute("""SELECT days.day, days.daily_expenses
                             FROM months
@@ -346,25 +352,18 @@ def add_day():
                             WHERE years.user_id = ?
                             AND years.year = ?
                             ORDER BY days.day""", session['user_id'], year)
-    # Validate day
+    
+    for day_value in days:
+        list_of_days.append(day_value)
+
+    # Validate day input
     try:
         day = int(request.form.get("day"))
-        day_exist = False
-        for day_value in days:
-            list_of_days.append(day_value)
-            if day_value["day"] == day:
-                day_exist = True
-        if not check_day(year, month, day):
-            flash("Invalid day input")
-            return render_template("days.html", year=year, months=list_of_days)
+        validator = validate_day(year, month, day, list_of_days)
+        if validator != 0:
+            return validator
     except ValueError:
-        flash(f"Invalid day input")
-        return render_template("days.html", year=year, month=month, days=list_of_days)
-
-    # Check if day already exist
-    if day_exist:
-        flash("Day already exist")
-        return render_template("days.html", year=year,month=month, days=list_of_days)
+        return error_occured("Invalid day input", 400)
     
     # Update day in the database
     db.execute("""INSERT INTO days (month_id, day) 
@@ -385,3 +384,4 @@ def add_day():
         list_of_days.append(day_value)
     
     return render_template("days.html", year=year, month=month, days=list_of_days)
+
