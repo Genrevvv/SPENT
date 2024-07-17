@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    $₱ENT - {{ month }} {{ day }}, {{ year }}
+{% endblock %}
+
+{% block main %}
+            <div class="parent-div">
+
+                <div class="main-content">
+                    <div class="main-form">
+                        <h2>Add Category</h2>
+                        <form action="/add_day" method="post">
+                            <div class="form-input">
+                                <select name="category">
+                                    <option selected disabled>Select a category</option>
+                                    <option value="Bills">Bills</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Savings or Investments">Savings or Investments</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <input name="year" value="{{ year }}" type="hidden">                         
+                                <input name="month" value="{{ month }}" type="hidden">
+                                <input name="day" value="{{ day }}" type="hidden">                         
+                                <button class="form-button" type="submit">Add Category</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="table-container">
+                        <h2 class="header">{{ month }} {{ day }}, {{ year }}</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Amount Spent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% if not days %}
+                                <tr>
+                                    <td><button>Add a category to display</button></td>
+                                    <td><button>some amount</button></td>
+                                </tr>
+                            {% else %}
+                                {% for category in categories %}
+                                    <tr>
+                                        <td>
+                                            <input name="year" value="{{ year }}" type="hidden">
+                                            <input name="month" value="{{ month }}" type="hidden">
+                                            <input name="day" value="{{ day['day'] }}" type="hidden">
+                                            <button type="submit">{{ category["category"] }}</button></td>
+                                        <td>
+                                            <input name="year" value="{{ year }}" type="hidden">
+                                            <input name="month" value="{{ month }}" type="hidden">
+                                            <input name="day" value="{{ day }}" type="hidden">
+                                            <button type="submit">{{ category["amount"] | float | format_currency }}</button></td>
+                                        </td>
+                                    </tr>                                    
+                                {%  endfor %}
+                            {% endif %}
+                            </tbody> 
+                        </table>
+                    </div>
+                </div>
+                <div class="sidebar">
+                    Display total expenses here
+                </div> 
+            </div>        
+
+{% endblock %}

@@ -65,9 +65,9 @@ CREATE TABLE spent (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     day_id INTEGER NOT NULL,
     category TEXT NOT NULL,
-    amount NUMERIC NOT NULL DEFAULT 0.00
+    amount NUMERIC NOT NULL DEFAULT 0.00,
     FOREIGN KEY (day_id) REFERENCES days (id)
-)
+);
 
 --queries
 SELECT days.day, days.daily_expenses
@@ -76,4 +76,16 @@ SELECT days.day, days.daily_expenses
     JOIN years ON years.id =  months.year_id
     WHERE years.user_id = ?
     AND years.year = ?
+    And months.month = ?
     ORDER BY days.day;
+
+SELECT spent.category, spent.amount 
+    FROM days
+    JOIN spent ON spent.day_id = days.id
+    JOIN months ON months.id = days.month_id
+    JOIN years ON years.id = months.year_id
+    WHERE years.user_id = ?
+    AND years.year = ?
+    AND months.month = ?
+    AND days.day = ?
+    ORDER BY spent.amount DESC;

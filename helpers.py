@@ -33,6 +33,25 @@ def validate_day_range(year, month, day):
     
     return True
 
+# check if day exist
+def check_day(year, month, day):
+    days = db.execute("""SELECT days.day, days.daily_expenses
+                        FROM months
+                        JOIN days ON  days.month_id = months.id
+                        JOIN years ON years.id =  months.year_id
+                        WHERE years.user_id = ?
+                        AND years.year = ?
+                        AND months.month = ?
+                        ORDER BY days.day""", session['user_id'], year, month)
+    
+    for day_value in days:
+        if day_value["day"] == day:
+            break
+    else: 
+        return error_occured("day not found", 404)
+    
+    return 0
+
 
 # Check month value
 def check_month_value(month):

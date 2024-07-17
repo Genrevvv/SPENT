@@ -4,15 +4,16 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
-from helpers import check_month, check_year, error_occured, format_currency, login_required, validate_day, validate_month, validate_year
+from helpers import check_day, check_month, check_year, error_occured, format_currency, login_required, validate_day, validate_month, validate_year
 
 
 # Configure application
 app = Flask(__name__)
 
 # Custom filter
+app.jinja_env.filters["check_day"] = check_day
 app.jinja_env.filters["check_month"] = check_month
-app.jinja_env.filters["check_day"] = check_year
+app.jinja_env.filters["check_year"] = check_year
 app.jinja_env.filters["error_occured"] = error_occured
 app.jinja_env.filters["format_currency"] = format_currency
 app.jinja_env.filters["validate_day"] = validate_day
@@ -206,7 +207,7 @@ def months():
         if validator != 0:
             return validator
     except ValueError:
-        return error_occured("Invalid year", 400)
+        return error_occured("year not found", 404)
 
     """Load months"""
     # Create a list of years
@@ -237,7 +238,7 @@ def add_month():
         if validator != 0:
             return validator(year)
     except ValueError:
-        return error_occured("Invalid year", 400)
+        return error_occured("year not found", 404)
     
     # Get list of months
     list_of_months= []
@@ -292,7 +293,7 @@ def days():
         if validator != 0:
             return validator(year)
     except ValueError:
-        return error_occured("Invalid year", 400)
+        return error_occured("year not foud year", 404)
 
     # check month in db
     try:
@@ -301,23 +302,21 @@ def days():
         if validator != 0:
             return validator
     except ValueError:
-        return error_occured("Invalid month", 400)
+        return error_occured("month not found", 404)
     
     # Create a list of days
     list_of_days = []
     days = db.execute("""SELECT days.day, days.daily_expenses
-                            FROM months
-                            JOIN days ON  days.month_id = months.id
-                            JOIN years ON years.id =  months.year_id
-                            WHERE years.user_id = ?
-                            AND years.year = ?
-                            ORDER BY days.day""", session['user_id'], year)
+                        FROM months
+                        JOIN days ON  days.month_id = months.id
+                        JOIN years ON years.id =  months.year_id
+                        WHERE years.user_id = ?
+                        AND years.year = ?
+                        AND months.month = ?
+                        ORDER BY days.day""", session['user_id'], year, month)
     for day_value in days:
         list_of_days.append(day_value)
-
-    print(f"list of days = {list_of_days}")
     
-    # Create a list of years
     return render_template("days.html", year=year, month=month, days=list_of_days)
 
 
@@ -333,25 +332,27 @@ def add_day():
         if validator != 0:
             return validator(year)
     except ValueError:
-        return error_occured("Invalid year", 400)
+        return error_occured("year not found", 404)
     
     # check month in db
     try:
         month = request.form.get("month")
+        print(f"The month is {month}")
         validator = check_month(year, month)
         if validator != 0:
             return validator
     except ValueError:
-        return error_occured("Invalid month", 400)
+        return error_occured("month not found", 404)
     
     list_of_days = []
     days = db.execute("""SELECT days.day, days.daily_expenses
-                            FROM months
-                            JOIN days ON  days.month_id = months.id
-                            JOIN years ON years.id =  months.year_id
-                            WHERE years.user_id = ?
-                            AND years.year = ?
-                            ORDER BY days.day""", session['user_id'], year)
+                        FROM months
+                        JOIN days ON  days.month_id = months.id
+                        JOIN years ON years.id =  months.year_id
+                        WHERE years.user_id = ?
+                        AND years.year = ?
+                        AND months.month = ?
+                        ORDER BY days.day""", session['user_id'], year, month)
     
     for day_value in days:
         list_of_days.append(day_value)
@@ -378,10 +379,62 @@ def add_day():
                         JOIN years ON years.id =  months.year_id
                         WHERE years.user_id = ?
                         AND years.year = ?
-                        ORDER BY days.day""", session['user_id'], year)
+                        AND months.month = ?
+                        ORDER BY days.day""", session['user_id'], year, month)
     
     for day_value in days:
         list_of_days.append(day_value)
     
     return render_template("days.html", year=year, month=month, days=list_of_days)
 
+
+@app.route("/spent", methods=["POST"])
+@login_required
+def spent():
+    """Check expenses in a day"""
+
+    # Check year in db
+    try:
+        year = int(request.form.get("year"))
+        validator = check_year(year)
+        if validator != 0:
+            return validator(year)
+    except ValueError:
+        return error_occured("year not found", 404)
+    
+    # check month in db
+    try:
+        month = request.form.get("month")
+        print(f"The month is {month}")
+        validator = check_month(year, month)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("month not found", 404)
+    
+    # check day in db
+    try:
+        day = int(request.form.get("day"))
+        validator = check_day(year, month, day)
+        if validator != 0:
+            return validator
+    except ValueError:
+        return error_occured("day not found", 404)
+
+    # Create a list of categories
+    list_of_categories = []
+    categories = db.execute("""SELECT spent.category, spent.amount 
+                                    FROM days
+                                    JOIN spent ON spent.day_id = days.id
+                                    JOIN months ON months.id = days.month_id
+                                    JOIN years ON years.id = months.year_id
+                                    WHERE years.user_id = ?
+                                    AND years.year = ?
+                                    AND months.month = ?
+                                    AND days.day = ?
+                                    ORDER BY spent.amount DESC;""", session["user_id"], year, month, day)
+    
+    for category in categories:
+        list_of_categories.append(category)
+
+    return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)

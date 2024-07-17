@@ -41,14 +41,14 @@
                                         <td>
                                             <form action="/spent" method="post">
                                                 <input name="year" value="{{ year }}" type="hidden">
-                                                <input name="month" value="{{ month['month'] }}" type="hidden">
+                                                <input name="month" value="{{ month }}" type="hidden">
                                                 <input name="day" value="{{ day['day'] }}" type="hidden">
                                                 <button type="submit">{{ day["day"] }}</button></td>
                                             </form>
                                         <td>
                                             <form action="/spent" method="post">
                                                 <input name="year" value="{{ year }}" type="hidden">
-                                                <input name="month" value="{{ month['month'] }}" type="hidden">
+                                                <input name="month" value="{{ month }}" type="hidden">
                                                 <input name="day" value="{{ day['day'] }}" type="hidden">
                                                 <button type="submit">{{ day["daily_expenses"] | float | format_currency }}</button></td>
                                             </form>
