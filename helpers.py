@@ -4,6 +4,9 @@ from datetime import datetime
 from flask import flash, redirect, render_template, request, session
 from functools import wraps
 
+# Custom reusable query functions
+from queries import get_categories, get_days, get_months, get_years, get_expenses, get_total_expenses
+
 # Set SQLite database
 db = SQL("sqlite:///spent.db")
 
@@ -119,6 +122,10 @@ def login_required(f):
 
 # Validate category
 def validate_category(year, month, day, category, categories):
+
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
+
     category_values = ["Bills", "Food", "Transportation", "Healthcare", "Education", "Savings or Investments", "Other"]
 
     for category_value in category_values:
@@ -131,7 +138,7 @@ def validate_category(year, month, day, category, categories):
     for category_value in categories:
         if category_value["category"] == category:
                 flash("Category already exist")
-                return render_template("spent.html", year=year, month=month, day=day, categories=categories)
+                return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
         
     return 0
 
@@ -139,9 +146,12 @@ def validate_category(year, month, day, category, categories):
 # Validate day input
 def validate_day(year, month, day, days):
 
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
+
     if not validate_day_range(year, month, day):
         flash("Invalid day input")
-        return render_template("days.html", year=year, month=month, days=days)
+        return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
     
     day_exist = False
 
@@ -152,7 +162,7 @@ def validate_day(year, month, day, days):
     # Check if day already exist
     if day_exist:
         flash("Day already exist")
-        return render_template("days.html", year=year,month=month, days=days)
+        return render_template("days.html", year=year,month=month, days=days, total_expenses=total_expenses, expenses=expenses)
 
     return 0
 
@@ -176,16 +186,19 @@ def validate_day_range(year, month, day):
 
 # Validate month input
 def validate_month(year, month, months):
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
+
     # Validate input
     if not month or not check_month_value(month):
         flash("Invalid month input")
-        return render_template("months.html", year=year, months=months)
+        return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
     # Check if month of the year of the user already exist
     for month_value in months:
         if month_value["month"] == month:
             flash("Month already exist")
-            return render_template("months.html", year=year, months=months)
+            return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
     return 0
 

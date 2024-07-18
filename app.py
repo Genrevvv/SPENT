@@ -7,8 +7,8 @@ from datetime import datetime
 # Custom auxiliary functions
 from helpers import check_day, check_month, check_year, error_occured, format_currency, login_required, validate_category, validate_day, validate_month, validate_year
 
-# Custom query functions
-from queries import get_categories, get_days, get_months, get_years
+# Custom reusable query functions
+from queries import get_categories, get_days, get_months, get_years, get_expenses, get_total_expenses
 
 # Configure application
 app = Flask(__name__)
@@ -51,9 +51,12 @@ def index():
     # Create a list of years (dict)
     years = get_years(session["user_id"])
 
-    return render_template("index.html", years=years)
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
 
+    return render_template("index.html", years=years, total_expenses=total_expenses, expenses=expenses)
 
+    
 # Login user (references finance pset)
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -82,6 +85,7 @@ def login():
         
         # Remember which user has logged in
         session["user_id"] = user[0]["id"]
+        session["username"] = request.form.get("username")
 
         # Redierect to home page
         return redirect("/")
@@ -141,6 +145,8 @@ def register():
         
         # Remember which user has logged in
         session["user_id"] = user[0]["id"]
+        session["username"] = request.form.get("username")
+
 
         # Redierect to home page
         return redirect("/")
@@ -207,13 +213,19 @@ def months():
     """Load months"""
     months = get_months(session["user_id"], year)
 
-    return render_template("months.html", year=year, months=months)
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
+
+    return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
 
 @app.route("/add_month", methods=["POST"])
 @login_required
 def add_month():
     """Add month"""
+
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
 
     # Check year in db
     try:
@@ -235,15 +247,15 @@ def add_month():
             return validator
     except ValueError:
         flash("Invalid month input")
-        return render_template("months.html", year=year, months=months)
+        return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
     
     # Update month in database
     db.execute("INSERT INTO months (year_id, month) VALUES ((SELECT id FROM years WHERE user_id = ? AND year = ?), ?)", session["user_id"], year, month)
 
-    # Create a new list of months (dict)
+    # Get the updated list of months (dict)
     months = get_months(session["user_id"], year)
 
-    return render_template("months.html", year=year, months=months)
+    return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
 
 @app.route("/days", methods=["GET"])
@@ -271,14 +283,20 @@ def days():
     
     # Create a list of days (dict)
     days = get_days(session["user_id"], year, month)
+
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
     
-    return render_template("days.html", year=year, month=month, days=days)
+    return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
 
 
 @app.route("/add_day", methods=["POST"])
 @login_required
 def add_day():
     """Add day"""
+
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
 
     # Check year in db
     try:
@@ -310,17 +328,17 @@ def add_day():
             return validator
     except ValueError:
         flash("Invalid day input")
-        return render_template("days.html", year=year, month=month, days=days)
+        return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
     
     # Update day in the database
     db.execute("""INSERT INTO days (month_id, day) 
                   VALUES ((SELECT id FROM months WHERE year_id = (
                         SELECT id FROM years WHERE user_id = ? AND year = ?) AND month = ?), ?)""", session["user_id"], year, month, day)
     
-    # Create a new list of days (dict)
+    # Get the updated list of days (dict)
     days = get_days(session["user_id"], year, month)
     
-    return render_template("days.html", year=year, month=month, days=days)
+    return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
 
 
 @app.route("/spent", methods=["GET"])
@@ -359,12 +377,20 @@ def spent():
     # Create a list of categories (dict)
     categories = get_categories(session["user_id"], year, month, day)
 
-    return render_template("spent.html", year=year, month=month, day=day, categories=categories)
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
+
+    return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
 
 
 @app.route("/add_category", methods=["POST"])
 @login_required
 def add_category():
+    """Add category"""
+
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
+
     # Check year in db
     try:
         year = int(request.form.get("year"))
@@ -398,10 +424,13 @@ def add_category():
     
     # Validate amount input
     try:
-        amount = request.form.get("amount")
+        amount = int(request.form.get("amount"))
+        if amount < 1:
+            flash("Invalid amount input")
+            return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
     except ValueError:
         flash("Invalid amount input")
-        return render_template("spent.html", year=year, month=month, day=day, categories=categories)
+        return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
 
     # Validate category input
     try:
@@ -411,7 +440,7 @@ def add_category():
             return validator
     except ValueError:
         flash("Invalid amount input")
-        return render_template("spent.html", year=year, month=month, day=day, categories=categories)
+        return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
 
     db.execute("""INSERT INTO spent (day_id, category, amount)
                     VALUES ((SELECT days.id
@@ -423,10 +452,13 @@ def add_category():
                                 AND months.month = ?
                                 AND days.day = ?), ?, ?)""", session["user_id"], year, month, day, category, amount)
     
-    # Create a new list of categories (dict)
+    # Get the updated list of categories (dict)
     categories = get_categories(session["user_id"], year, month, day)
+
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
         
-    return render_template("spent.html", year=year, month=month, day=day, categories=categories)
+    return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
 
 
 @app.route("/delete_year", methods=["POST"])
@@ -471,11 +503,13 @@ def delete_month():
     db.execute("DELETE FROM days WHERE month_id = :month_id", month_id=month_id)
     db.execute("DELETE FROM months WHERE id = :month_id", month_id=month_id)
 
-    
-    # Get list of months
+    # Get the updated list of months (dict)
     months = get_months(session["user_id"], year)
 
-    return render_template("months.html", year=year, months=months)
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
+
+    return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
 
 @app.route("/delete_day", methods=["POST"])
@@ -509,10 +543,13 @@ def delete_day():
     db.execute("DELETE FROM spent WHERE day_id = :day_id", day_id=day_id)
     db.execute("DELETE FROM days WHERE id = :day_id", day_id=day_id)
 
-    # Get list of days
+    # Get the updated list of days (dict)
     days = get_days(session["user_id"], year, month)
+    
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
 
-    return render_template("days.html", year=year, month=month, days=days)
+    return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
 
 
 @app.route("/delete_category", methods=["POST"])
@@ -554,7 +591,10 @@ def delete_category():
     # Delete day and everything related to it
     db.execute("DELETE FROM spent WHERE id = :spent_id", spent_id=spent_id)
 
-    # Get list of categories
+    # Get the updated list of categories (dict)
     categories = get_categories(session["user_id"], year, month, day)
 
-    return render_template("spent.html", year=year, month=month, day=day, categories=categories)
+    total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
+    expenses = get_expenses(session["user_id"]) # Get expenses
+
+    return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)

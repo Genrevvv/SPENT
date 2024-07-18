@@ -5,92 +5,90 @@
 {% endblock %}
 
 {% block main %}
-            <div class="parent-div">
+    <div class="parent-div">
 
-                <div class="main-content">
-                    <div class="main-form">
-                        <h2>Add a month</h2>
-                        <form action="/add_month" method="post">
-                            <div class="form-input"> 
-                                <select name="month">
-                                    <option selected disabled>Select a month</option>
-                                    <option value="January">January</option>
-                                    <option value="February">February</option>
-                                    <option value="March">March</option>
-                                    <option value="April">April</option>
-                                    <option value="May">May</option>
-                                    <option value="June">June</option>
-                                    <option value="July">July</option>
-                                    <option value="August">August</option>
-                                    <option value="September">September</option>
-                                    <option value="October">October</option>
-                                    <option value="November">November</option>
-                                    <option value="December">December</option>
-                                </select>
-                                <input name="year" value="{{ year }}" type="hidden">
-                                <button class="form-button" type="submit">Add Month</button>
-                            </div>
-                        </form>
+        <div class="main-content">
+            <div class="main-form">
+                <h2>Add a month</h2>
+                <form action="/add_month" method="post">
+                    <div class="form-input"> 
+                        <select name="month">
+                            <option selected disabled>Select a month</option>
+                            <option value="January">January</option>
+                            <option value="February">February</option>
+                            <option value="March">March</option>
+                            <option value="April">April</option>
+                            <option value="May">May</option>
+                            <option value="June">June</option>
+                            <option value="July">July</option>
+                            <option value="August">August</option>
+                            <option value="September">September</option>
+                            <option value="October">October</option>
+                            <option value="November">November</option>
+                            <option value="December">December</option>
+                        </select>
+                        <input name="year" value="{{ year }}" type="hidden">
+                        <button class="form-button" type="submit">Add Month</button>
                     </div>
+                </form>
+            </div>
 
-                    <div class="table-container">
-                        <h2 class="header">{{ year }}</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Months</th>
-                                    <th>Monthly Expenses</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% if not months %}
-                                <tr>
-                                    <td><button>Add a month to display</button></td>
-                                    <td><button>some amount</button></td>
-                                    <td></td>
-                                </tr>
-                            {% else %}
-                                {% for month in months %}
-                                    <tr>
-                                        <td>
-                                            <form action="/days" method="get">
-                                                <input name="year" value="{{ year }}" type="hidden">
-                                                <input name="month" value="{{ month['month'] }}" type="hidden">
-                                                <button type="submit">{{ month["month"] }}</button>
-                                            </form>
-                                        </td>
-                                        <td>
-                                            {% if not month["expenses"] %}
-                                            <form action="/days" method="get">
-                                                <input name="year" value="{{ year }}" type="hidden">
-                                                <input name="month" value="{{ month['month'] }}" type="hidden">
-                                                <button type="submit">{{ 0 | format_currency }}</button></td>
-                                            </form>
-                                            {% else %}
-                                                <form action="/days" method="get">
-                                                    <input name="year" value="{{ year }}" type="hidden">
-                                                    <input name="month" value="{{ month['month'] }}" type="hidden">
-                                                    <button type="submit">{{ month["expenses"] | format_currency }}</button></td>
-                                                </form>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <form action="/delete_month" method="post">
-                                                <input name="month_id" value="{{ month['id'] }}" type="hidden">
-                                                <input name="year" value="{{ year }}" type="hidden">
-                                                <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button></td>
-                                            </form>
-                                        </td>
-                                    </tr>                                    
-                                {%  endfor %}
-                            {% endif %}
-                            </tbody> 
-                        </table>
-                    </div>
-                </div>
-                <div class="sidebar">
-                    Display total expenses here
-                </div> 
-            </div>        
+            <div class="table-container">
+                <h2 class="header">{{ year }}</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Months</th>
+                            <th>Monthly Expenses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% if not months %}
+                        <tr>
+                            <td><button>Add a month to display</button></td>
+                            <td><button>some amount</button></td>
+                            <td></td>
+                        </tr>
+                    {% else %}
+                        {% for month in months %}
+                            <tr>
+                                <td>
+                                    <form action="/days" method="get">
+                                        <input name="year" value="{{ year }}" type="hidden">
+                                        <input name="month" value="{{ month['month'] }}" type="hidden">
+                                        <button type="submit">{{ month["month"] }}</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    {% if not month["expenses"] %}
+                                    <form action="/days" method="get">
+                                        <input name="year" value="{{ year }}" type="hidden">
+                                        <input name="month" value="{{ month['month'] }}" type="hidden">
+                                        <button type="submit">{{ 0 | format_currency }}</button></td>
+                                    </form>
+                                    {% else %}
+                                        <form action="/days" method="get">
+                                            <input name="year" value="{{ year }}" type="hidden">
+                                            <input name="month" value="{{ month['month'] }}" type="hidden">
+                                            <button type="submit">{{ month["expenses"] | format_currency }}</button></td>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="/delete_month" method="post">
+                                        <input name="month_id" value="{{ month['id'] }}" type="hidden">
+                                        <input name="year" value="{{ year }}" type="hidden">
+                                        <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button></td>
+                                    </form>
+                                </td>
+                            </tr>                                    
+                        {%  endfor %}
+                    {% endif %}
+                    </tbody> 
+                </table>
+            </div>
+        </div>
+        {% include "sidebar.html" %}
+    </div>        
 
 {% endblock %}

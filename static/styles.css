@@ -143,16 +143,61 @@ a:visited {
 
 .main-content {
     width: 60%;
-    margin: 0rem 0.5rem;
+    margin: 0rem 1rem;
 }
 
 .sidebar {
-    background-color: #9a9aff;
+    background-color: #f5f9ff;
     width: 40%;
-    margin: 0rem 0.5rem;
+    margin: 0rem 1rem;
+    border: 1px solid #002a57;
+    border-radius: 1rem;
  }
 
- .main-form {
+ .display {
+    padding: 1rem;
+ }
+
+ .display h2, .display h1, .display p {
+    padding: 0;
+    margin: 0;
+ }
+
+ .display table {
+    background-color: transparent;
+    margin: 0 auto;
+    width: 70%;
+ }
+
+.display table th, .display table td {
+    font-size: 0.8rem;  
+    vertical-align: middle;
+    padding: 0.5rem;
+}
+
+.display table td {
+    padding-left: 1rem;
+    text-align: left;
+}
+
+.display table th:nth-child(1) {
+    width: 50%;
+}
+
+.display table th:nth-child(2) {
+    width: 50%;
+}
+
+.total-expenses {
+    width: 66%;
+    padding: 0.5rem;
+    margin: 0.5rem auto;
+    background-color: #9bcbff;
+    border: 1px solid #208cff;
+    border-radius: 1rem;
+}
+
+.main-form {
     color: white;
     background-color: #9bcbff;
     border: 1px solid #208cff;
@@ -161,24 +206,24 @@ a:visited {
     margin-bottom: 1rem;
     padding: 0.5rem;
     width: 80%;
- }
+}
 
- .main-form h2 {
+.main-form h2 {
     padding: 0;
     padding-bottom: 0.5rem;
     margin: 0;
- }
+}
 
- .main-form input {
+.main-form input {
     border: 1px solid #208cff;
-    width: 23%;
- }
+    width: 23%  
+}
 
- .main-form input:focus {
+.main-form input:focus {
     box-shadow: 0 0 0 0.25rem #3f96f3;
- }
+}
 
- .main-form select {
+.main-form select {
     font-size: 1rem;
     padding: 0.65rem;
     border: 1px solid #208cff;
@@ -200,9 +245,9 @@ table {
     background-color: transparent;
     margin-left: 9%;
     width: 89%;
- }
+}
 
- table th:nth-child(1) {
+table th:nth-child(1) {
     width: 55%;
 }
 
@@ -264,8 +309,8 @@ table td button:hover {
     border: 1px solid #0777ee;
     padding: 0.5rem 0;
     margin: 0;
-    margin-left: 9%;
-    width: 82.1%;
+    margin-left: 9.2%;
+    width: 81.8%;
     color: white;
 }
 
@@ -284,3 +329,4 @@ table td button:hover {
     margin-left: 0.5rem;
     font-size: 1.3rem;
 }
+
