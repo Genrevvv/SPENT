@@ -1,4 +1,5 @@
 from cs50 import SQL
+from operator import itemgetter
 
 # Set SQLite database
 db = SQL("sqlite:///spent.db")
@@ -74,7 +75,7 @@ def get_total_expenses(user_id):
                             JOIN years ON years.id = months.year_id
                             WHERE years.user_id = :user_id
                             """, user_id=user_id)
-    total_expenses = total_expenses[0]["total_expenses"]
+    total_expenses = 0 if total_expenses[0]["total_expenses"] == None else total_expenses[0]["total_expenses"]
     return total_expenses
 
 def get_expenses(user_id):
@@ -92,9 +93,12 @@ def get_expenses(user_id):
                                 JOIN months ON months.id = days.month_id
                                 JOIN years ON years.id = months.year_id
                                 WHERE years.user_id = :user_id
-                                  AND spent.category = :category
+                                AND spent.category = :category
                                 """, user_id=user_id, category=category)
-        expense = {'name': category, 'amount': expense[0]["expense"]}
+        expense = {'name': category, 'amount': 0 if expense[0]["expense"] == None else expense[0]["expense"]}
         expenses.append(expense)
-            
+
+    # Sort list based on expense amount
+    expenses = sorted(expenses, key=itemgetter('amount'), reverse=True) # Assisted by chatGPT
+    
     return expenses

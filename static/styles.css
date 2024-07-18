@@ -166,6 +166,7 @@ a:visited {
  .display table {
     background-color: transparent;
     margin: 0 auto;
+    height: auto;
     width: 70%;
  }
 
@@ -328,5 +329,40 @@ table td button:hover {
     color: red;
     margin-left: 0.5rem;
     font-size: 1.3rem;
+}
+
+.fa-pen-to-square {
+    text-align: right;
+    font-size: 1.3rem;
+}
+
+.fa-pen-to-square:hover {
+    cursor: pointer;
+}
+
+.spent-td {
+    text-align: center;
+}
+
+.spent-button {
+    position: relative;
+    border: none; 
+}
+
+.spent-button i {
+    position: absolute;
+    right: 8px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    margin-left: 5px; 
+}
+
+.spent-td:hover {
+    background-color: #f1f0f0;
+}
+
+.spent-td button:hover {
+    cursor: default;
+    background-color: #f1f0f0;
 }
 

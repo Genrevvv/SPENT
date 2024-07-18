@@ -64,13 +64,13 @@
                                     <form action="/days" method="get">
                                         <input name="year" value="{{ year }}" type="hidden">
                                         <input name="month" value="{{ month['month'] }}" type="hidden">
-                                        <button type="submit">{{ 0 | format_currency }}</button></td>
+                                        <button type="submit">{{ 0 | format_currency }}</button>
                                     </form>
                                     {% else %}
                                         <form action="/days" method="get">
                                             <input name="year" value="{{ year }}" type="hidden">
                                             <input name="month" value="{{ month['month'] }}" type="hidden">
-                                            <button type="submit">{{ month["expenses"] | format_currency }}</button></td>
+                                            <button type="submit">{{ month["expenses"] | format_currency }}</button>
                                         </form>
                                     {% endif %}
                                 </td>
@@ -78,7 +78,7 @@
                                     <form action="/delete_month" method="post">
                                         <input name="month_id" value="{{ month['id'] }}" type="hidden">
                                         <input name="year" value="{{ year }}" type="hidden">
-                                        <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button></td>
+                                        <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>                                    

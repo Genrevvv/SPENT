@@ -54,6 +54,8 @@ def index():
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
 
+    print(expenses)
+
     return render_template("index.html", years=years, total_expenses=total_expenses, expenses=expenses)
 
     

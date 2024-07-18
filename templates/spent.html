@@ -50,24 +50,28 @@
                     {% else %}
                         {% for category in categories %}
                             <tr>
-                                <td>
+                                <td class="spent-td">
                                     <input name="year" value="{{ year }}" type="hidden">
                                     <input name="month" value="{{ month }}" type="hidden">
                                     <input name="day" value="{{ day['day'] }}" type="hidden">
-                                    <button type="submit">{{ category["category"] }}</button></td>
-                                <td>
+                                    <button type="submit">{{ category["category"] }}</button>
+                                </td>
+                                <td class="spent-td">
                                     <input name="year" value="{{ year }}" type="hidden">
                                     <input name="month" value="{{ month }}" type="hidden">
                                     <input name="day" value="{{ day }}" type="hidden">
-                                    <button type="submit">{{ category["amount"] | float | format_currency }}</button></td>
-                                </td>
+                                    <button class="spent-button" type="submit">
+                                        {{ category["amount"] | float | format_currency }}
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                </td> 
                                 <td>
                                     <form action="/delete_category" method="post">
                                         <input name="year" value="{{ year }}" type="hidden">
                                         <input name="month" value="{{ month }}" type="hidden">
                                         <input name="day" value="{{ day }}" type="hidden">   
-                                        <input name="spent_id" value="{{ category['id'] }}" type="hidden">                                                <input name="year_id" value="{{ year['id'] }}" type="hidden">
-                                        <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button></td>
+                                        <input name="spent_id" value="{{ category['id'] }}" type="hidden">  
+                                        <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>                                    

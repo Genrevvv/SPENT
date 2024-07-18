@@ -107,3 +107,15 @@ SELECT sum(spent.amount) AS expenses
     JOIN years ON years.id = months.year_id
     WHERE years.user_id = 1
     ORDER BY years.year DESC
+
+SELECT categories.name AS name, SUM(spent.amount) AS expense
+FROM (
+    SELECT DISTINCT category AS name
+    FROM spent
+) categories
+LEFT JOIN spent ON categories.name = spent.category
+JOIN days ON days.id = spent.day_id
+JOIN months ON months.id = days.month_id
+JOIN years ON years.id = months.year_id AND years.user_id = 1
+GROUP BY categories.name
+ORDER BY expense DESC;

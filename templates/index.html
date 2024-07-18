@@ -45,19 +45,19 @@
                                     {% if not year["expenses"] %}
                                         <form action="/months" method="get">
                                             <input name="year" value="{{ year['year'] }}" type="hidden">
-                                            <button type="submit">{{ 0 | format_currency }}</button></td>
+                                            <button type="submit">{{ 0 | format_currency }}</button>
                                         </form>
                                     {% else %}
                                         <form action="/months" method="get">
                                             <input name="year" value="{{ year['year'] }}" type="hidden">
-                                            <button type="submit">{{ year["expenses"] | format_currency }}</button></td>
+                                            <button type="submit">{{ year["expenses"] | format_currency }}</button>
                                         </form>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <form action="/delete_year" method="post">
                                         <input name="year_id" value="{{ year['id'] }}" type="hidden">
-                                        <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button></td>
+                                        <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>                                    
