@@ -53,7 +53,7 @@
                                 {% for month in months %}
                                     <tr>
                                         <td>
-                                            <form action="/days" method="post">
+                                            <form action="/days" method="get">
                                                 <input name="year" value="{{ year }}" type="hidden">
                                                 <input name="month" value="{{ month['month'] }}" type="hidden">
                                                 <button type="submit">{{ month["month"] }}</button>
@@ -61,13 +61,13 @@
                                         </td>
                                         <td>
                                             {% if not month["expenses"] %}
-                                            <form action="/days" method="post">
+                                            <form action="/days" method="get">
                                                 <input name="year" value="{{ year }}" type="hidden">
                                                 <input name="month" value="{{ month['month'] }}" type="hidden">
                                                 <button type="submit">{{ 0 | format_currency }}</button></td>
                                             </form>
                                             {% else %}
-                                                <form action="/days" method="post">
+                                                <form action="/days" method="get">
                                                     <input name="year" value="{{ year }}" type="hidden">
                                                     <input name="month" value="{{ month['month'] }}" type="hidden">
                                                     <button type="submit">{{ month["expenses"] | format_currency }}</button></td>

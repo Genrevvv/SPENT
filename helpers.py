@@ -6,22 +6,6 @@ from functools import wraps
 
 # Set SQLite database
 db = SQL("sqlite:///spent.db")
-        
-# Get the day range of a specific month of a year (Assisted with AI)
-def validate_day_range(year, month, day):
-    month = convert_month(month)
-    
-    if month == False:
-        return False
-
-    # Determine the number of days in the month
-    num_days = monthrange(year, month)[1]
-
-    # Validate day
-    if day < 1 or day > num_days:
-        return False
-    
-    return True
 
 # check if day exist
 def check_day(year, month, day):
@@ -134,61 +118,74 @@ def login_required(f):
 
 
 # Validate category
-def validate_category(year, month, day, category, list_of_categories):
-    categories = ["Bills", "Food", "Transportation", "Healthcare", "Education", "Savings or Investments", "Other"]
+def validate_category(year, month, day, category, categories):
+    category_values = ["Bills", "Food", "Transportation", "Healthcare", "Education", "Savings or Investments", "Other"]
 
-    for category_value in categories:
+    for category_value in category_values:
         if category_value == category:
             break
     else:
         return error_occured("Invalid category option", 400)
     
     # Check if category already exists
-    for category_value in list_of_categories:
+    for category_value in categories:
         if category_value["category"] == category:
                 flash("Category already exist")
-                return render_template("spent.html", year=year, month=month, day=day, categories=list_of_categories)
+                return render_template("spent.html", year=year, month=month, day=day, categories=categories)
         
     return 0
 
 
 # Validate day input
-def validate_day(year, month, day, list_of_days):
+def validate_day(year, month, day, days):
 
     if not validate_day_range(year, month, day):
         flash("Invalid day input")
-        return render_template("days.html", year=year, month=month, days=list_of_days)
+        return render_template("days.html", year=year, month=month, days=days)
     
     day_exist = False
 
-    for day_value in list_of_days:
+    for day_value in days:
         if day_value["day"] == day:
             day_exist = True
 
     # Check if day already exist
     if day_exist:
         flash("Day already exist")
-        return render_template("days.html", year=year,month=month, days=list_of_days)
+        return render_template("days.html", year=year,month=month, days=days)
 
     return 0
 
-# Validate month input
-def validate_month(year, month, list_of_months):
-    month_exist = False
 
+# Get the day range of a specific month of a year (Assisted with chatGPT)
+def validate_day_range(year, month, day):
+    month = convert_month(month)
+    
+    if month == False:
+        return False
+
+    # Determine the number of days in the month
+    num_days = monthrange(year, month)[1]
+
+    # Validate day
+    if day < 1 or day > num_days:
+        return False
+    
+    return True
+
+
+# Validate month input
+def validate_month(year, month, months):
     # Validate input
     if not month or not check_month_value(month):
         flash("Invalid month input")
-        return render_template("months.html", year=year, months=list_of_months)
+        return render_template("months.html", year=year, months=months)
 
     # Check if month of the year of the user already exist
-    for month_value in list_of_months:
+    for month_value in months:
         if month_value["month"] == month:
-            month_exist = True
-
-    if month_exist:
-        flash("Month already exist")
-        return render_template("months.html", year=year, months=list_of_months)
+            flash("Month already exist")
+            return render_template("months.html", year=year, months=months)
 
     return 0
 
