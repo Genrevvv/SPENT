@@ -38,6 +38,7 @@
                         <tr>
                             <th>Category</th>
                             <th>Amount Spent</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -57,11 +58,11 @@
                                     <button class="spent-button">
                                         {{ category.amount | float | format_currency }}
                                         <i class="fa-solid fa-pen-to-square edit-icon"
-                                            year="{{ year }}"
-                                            month="{{ month }}"
-                                            day="{{ day }}"
-                                            amount="{{ category.amount }}"
-                                            id="{{ category.id }}">
+                                            data-year="{{ year }}"
+                                            data-month="{{ month }}"
+                                            data-day="{{ day }}"
+                                            data-amount="{{ category.amount }}"
+                                            data-id="{{ category.id }}">
                                         </i>   
                                     </button>
                                 </td> 

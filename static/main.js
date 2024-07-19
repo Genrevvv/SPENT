@@ -3,10 +3,10 @@ function edit(editIcon, year, month, day, amount, id) {
 
     inputBox = `<input class="selected" name="amount" type="number" value="${amount}" autocomplete="off" autofocus>`;
     checkIcon = `<i class="fa-solid fa-check save-icon"
-                    year="${year}"
-                    month="${month}"
-                    day="${day}"
-                    id="${id}">
+                    data-year="${year}"
+                    data-month="${month}"
+                    data-day="${day}"
+                    data-id="${id}">
                  </i>`;
     xIcon = '<i class="fa-solid fa-x cancel-icon"></i>';
 
@@ -19,13 +19,13 @@ function edit(editIcon, year, month, day, amount, id) {
     // Add event listenr to the target
     tdButton.addEventListener('click', function(event) {
         if (event.target.classList.contains('save-icon')) {
-            const year = event.target.getAttribute('year');
-            const month = event.target.getAttribute('month');
-            const day = event.target.getAttribute('day');
+            const year = event.target.getAttribute('data-year');
+            const month = event.target.getAttribute('data-month');
+            const day = event.target.getAttribute('data-day');
             const parent = event.target.parentNode;
             console.log(`parent is: ${parent}`);
             const amount = parent.querySelector('.selected').value;
-            const id = event.target.getAttribute('id');
+            const id = event.target.getAttribute('data-id');
             
             // Call the function with the icon's attribute as its parameters
             save(tdButton, year, month, day, amount, id);
@@ -84,11 +84,11 @@ document.querySelectorAll('.edit-icon').forEach(editIcon => {
 
     // Add a click event listener for each 'editIcon'
     editIcon.addEventListener('click', () => {
-        const year = editIcon.getAttribute('year');
-        const month = editIcon.getAttribute('month');
-        const day = editIcon.getAttribute('day');
-        const amount = editIcon.getAttribute('amount')
-        const id = editIcon.getAttribute('id');
+        const year = editIcon.getAttribute('data-year');
+        const month = editIcon.getAttribute('data-month');
+        const day = editIcon.getAttribute('data-day');
+        const amount = editIcon.getAttribute('data-amount')
+        const id = editIcon.getAttribute('data-id');
 
         // Call the function with the icon's attribute as its parameters
         edit(editIcon, year, month, day, amount, id);
@@ -97,7 +97,10 @@ document.querySelectorAll('.edit-icon').forEach(editIcon => {
 
 
 // Removes flash message
-document.getElementById('remove-flash').addEventListener('click', function() {
+if (document.getElementById('remove-flash') !== null)
+{
+    document.getElementById('remove-flash').addEventListener('click', function() {
     element = document.getElementById('flash-message');
     element.remove();
-});
+    });
+}

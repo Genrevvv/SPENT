@@ -24,6 +24,7 @@
                         <tr>
                             <th>Years</th>
                             <th>Annual Expenses</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,7 +40,8 @@
                                 <td>
                                     <form action="/months" method="get">
                                         <input name="year" value="{{ year.year }}" type="hidden">
-                                        <button type="submit">{{ year.year }}</button></td>
+                                        <button type="submit">{{ year.year }}</button>
+                                </td>
                                     </form>
                                 <td>
                                     {% if not year.expenses %}
