@@ -19,8 +19,7 @@
                     {% if session["user_id"] %}
                         <ul class="navbar-items">
                             <li><a class="nav-link" href="/">Home</a></li>
-                            <li><a class="nav-link" href="">Graph</a></li>
-                            <li><a class="nav-link" href="">Account</a></li>
+                            <li><a class="nav-link" href="/account">Account</a></li>
                         </ul>
                         <ul class="navbar-items pos-right">
                             <li><a class="nav-link" href="/logout">Log Out</a></li>
@@ -39,7 +38,8 @@
 
         {% if get_flashed_messages() %}
             <header>
-                <div class="flash-message">
+                <div id="flash-message">
+                    <i class="fa-solid fa-x cancel-icon" id="remove-flash"></i>
                     {{ get_flashed_messages() | join(" ") }}
                 </div>
             </header>

@@ -119,3 +119,22 @@ JOIN months ON months.id = days.month_id
 JOIN years ON years.id = months.year_id AND years.user_id = 1
 GROUP BY categories.name
 ORDER BY expense DESC;
+
+DELETE FROM spent 
+    WHERE day_id IN (
+        SELECT id FROM days WHERE month_id IN (
+            SELECT id FROM months WHERE year_id IN (
+                SELECT id FROM years WHERE user_id = :user_id)))
+
+DELETE FROM days 
+    WHERE month_id IN (
+        SELECT id FROM months WHERE year_id IN (
+            SELECT id FROM years WHERE user_id = :user_id))
+
+DELETE FROM months 
+    WHERE year_id IN (
+        SELECT id FROM years WHERE user_id = :user_id)
+
+DELETE FROM years WHERE user_id = :user_id 
+
+DELETE FROM users WHERE id = :user_id

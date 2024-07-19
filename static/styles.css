@@ -76,7 +76,9 @@ a:visited {
 
 .form-input input {
     font-size: 1rem;
-    padding: 0.65rem;
+    width: 12.5%;
+    padding: 0.75rem;
+    margin: 0.05rem 0;
     border: 1px solid #ccc;
     border-radius: 0.5rem;
     transition: box-shadow 0.3s ease;
@@ -100,14 +102,16 @@ a:visited {
     border-width: 0;
     border-radius: 0.5rem;
     background-color: #007bff;
+    transition: background-color 0.3s ease;
 }
 
 .form-button:hover {
     cursor: pointer;
-    background-color: #046ddd;
+    background-color: #0a68cc;
 }
 
-.flash-message {
+#flash-message {
+    position: relative;
     display: block;
     font-size: 1rem;
     padding: 1rem;
@@ -118,6 +122,7 @@ a:visited {
 }
 
 .currency-container {
+    margin: 2rem 0;
     padding: 0.5rem;
 }
 
@@ -126,7 +131,7 @@ a:visited {
     background-color: #f0f7ff;
     border: 1px solid #cacaca;
     border-radius: 1rem;
-    padding: 10rem 5rem;
+    padding: 8rem 6rem;
     margin: 1rem 1rem;
     transition: background-color 0.3s ease;
 }
@@ -222,11 +227,12 @@ a:visited {
 
 .main-form input {
     border: 1px solid #208cff;
-    width: 23%  
+    width: 23%;
+    transition: box-shadow 0.3s ease;
 }
 
 .main-form input:focus {
-    box-shadow: 0 0 0 0.25rem #3f96f3;
+    box-shadow: 0 0 0 0.15rem #3f96f3;
 }
 
 .main-form select {
@@ -240,7 +246,7 @@ a:visited {
 }
 
 .main-form select:focus {
-    box-shadow: 0 0 0 0.25rem #3f96f3;
+    box-shadow: 0 0 0 0.15rem #3f96f3;
 }
 
 .main-form select:hover {
@@ -277,6 +283,7 @@ table th {
 
 table td {
     background-color: #f1f0f0;
+    transition: background-color 0.3s ease;
 }
 
 table td:nth-child(3) {
@@ -332,18 +339,26 @@ table td button:hover {
 }
 
 .fa-trash {
-    color: red;
+    color: #ff0000;
     margin-left: 0.5rem;
     font-size: 1.3rem;
+    transition: color 0.3s ease;
+}
+
+.fa-trash:hover {
+    color: #c71414;
 }
 
 .fa-pen-to-square {
     text-align: right;
     font-size: 1.3rem;
+    color: #000000;
+    transition: color 0.3s ease;
 }
 
 .fa-pen-to-square:hover {
     cursor: pointer;
+    color: #555353;
 }
 
 .spent-td {
@@ -392,21 +407,115 @@ table td button:hover {
     margin-left: 0.5rem;
     padding: 0;
     font-size: 1.3rem;
-    color: #008000;
+    color: #18e218;
+    transition: color 0.3s ease;
 }
 
 .fa-check:hover {
     cursor: pointer;
-    color: #00c400;
+    color: #068006;
 }
 
 .fa-x {
     margin-left: 0.5rem;
     font-size: 1rem;
-    color: #ff0000;
+    color: #fc5a5a;
+    transition: color 0.3s ease;
 }
 
 .fa-x:hover {
     cursor: pointer;
-    color: #ff5656;
+    color: #e00000;
+}
+
+#remove-flash {
+    font-size: 0.8rem;
+    position: absolute;
+    top: 12px;
+    right: 0.7rem;
+}
+
+.fa-user {
+    text-align: center;
+    font-size: 10rem;
+}
+
+.account-container {
+    align-items: center;
+}
+
+.profile {
+    background-color: #f6fffa;
+    padding: 5rem;
+    border: 1px solid #000000;
+    border-radius: 1rem;
+    width: 20%;
+    margin: 0 1rem;
+}
+
+.account-setting {
+    background-color: #f6fffa;
+    padding: 5rem;
+    padding-top: 0;
+    width: 20%;
+    border: 1px solid #000000;
+    border-radius: 1rem;
+}
+
+.account-setting button {
+    margin: 0.5rem 0;
+}
+
+.account-setting h3 {
+    margin: 1.5rem;
+}
+
+#delete-acc {
+    margin: 0.5rem 0;
+    background-color: #ff2d2d;
+    transition: background-color 0.3s ease;
+}
+
+#delete-acc:hover {
+    background-color: #d30000;
+}
+
+.delete-container {
+    background-color: #f6fbff;
+    padding: 0 3rem;
+    border: 1px solid #000000;
+    border-radius: 1rem;
+    width: 30%;
+    margin: 5rem auto;
+}
+
+.delete-container h2 {
+    padding: 0;
+    margin: 0.5rem 0;
+}
+
+.delete-container p {
+    padding: 0;
+    margin: 0;
+    margin-bottom: 1.5rem;
+}
+
+.delete-container img {
+    height: 10rem;
+}
+.delete-container form {
+    display: inline;
+}
+
+.delete-container button {
+    background-color: #ff2d2d;
+    padding: 0.75rem 1.5rem;
+    margin: 0 0.25rem;
+    transition: background-color 0.3s ease;
+}
+
+.delete-container button:hover {
+    background-color: #d30000;
+    padding: 0.75rem 1.5rem;
+    margin: 0 0.25rem;
 }

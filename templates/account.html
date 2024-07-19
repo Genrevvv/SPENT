@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    $₱ENT - Account
+{% endblock %}
+
+{% block main %}
+
+    <div class="account-container">
+        <div class="parent-div">
+
+            <div class="profile">
+                <i class="fa-solid fa-user"></i>
+                <h2>{{ username }}</h2>
+            </div>
+            <div class="account-setting">
+                <h3>Account Settings</h3>
+                <form action="/change_username" method="get">
+                    <button class="form-button" type="submit">Change Username</button>
+
+                </form>
+                <form action="change_password" method="get">
+                    <button class="form-button" type="submit">Change Password</button>
+
+                </form>
+                <form action="/delete_account" method="get">
+                    <button class="form-button" id="delete-acc" type="submit">Delete Account</button>
+                </form>
+            </div>
+
+            {% include "sidebar.html" %}
+
+        </div>
+    </div>
+
+
+{% endblock %}

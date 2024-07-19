@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    $₱ENT - Change Username
+{% endblock %}
+
+{% block main %}
+    <div class="form-container">
+        <div>
+            <h2>Change Username</h2>
+        </div>
+
+        <form action="/change_username" method="post">
+            <div class="form-input mb-1">
+                <input name="old_username" placeholder="Old Username" type="text" autocomplete="off" autofocus>
+            </div>
+            <div class="form-input mb-1">
+                <input name="new_username" placeholder="New Username" type="text" autocomplete="off" autofocus>
+            </div>
+            <button class="form-button" type="submit">Change Username</button>
+        </form>   
+
+    </div>
+
+{% endblock %}

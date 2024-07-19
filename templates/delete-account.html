@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    $₱ENT - Delete Account
+{% endblock %}
+
+{% block main %}
+
+    <div class="delete-container">
+        <div class="form-container">
+            <div>
+                <h2>Delete Confirmation</h2>
+            </div>
+            <p>Are you sure you want to delete your account?</p>
+            <form action="/delete_account" method="post">
+                <button class="form-button delete-yes" type="submit">Yes</button>
+            </form>
+            <form action="/account" method="get">
+                <button class="form-button delte-no" type="submit">No</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

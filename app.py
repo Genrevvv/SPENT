@@ -8,7 +8,7 @@ from datetime import datetime
 from helpers import check_day, check_month, check_year, error_occured, format_currency, login_required, validate_category, validate_day, validate_month, validate_year
 
 # Custom reusable query functions
-from queries import get_categories, get_days, get_months, get_years, get_expenses, get_total_expenses
+from queries import delete_user, get_categories, get_days, get_months, get_years, get_expenses, get_total_expenses
 
 # Configure application
 app = Flask(__name__)
@@ -603,7 +603,7 @@ def delete_category():
 @login_required
 def save():
     # ChatGPT's idea
-    
+
     # Get the data from the request
     data = request.json  # Parse data
 
@@ -661,3 +661,95 @@ def save():
         "total_expenses": total_expenses,
         "expenses": expenses
     })
+
+@app.route('/account', methods=["GET"])
+@login_required
+def account():
+
+    total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
+    expenses = get_expenses(session["user_id"])  # Get expenses
+
+    return render_template("account.html", username=session["username"], total_expenses=total_expenses, expenses=expenses)
+
+
+@app.route('/change_username', methods=["GET", "POST"])
+@login_required
+def change_username():
+    if request.method == "POST":
+        old_username = request.form.get("old_username")
+        new_username = request.form.get("new_username")
+
+        # Validate user input
+
+        if not old_username or not new_username:
+            flash("Please input a valid username")
+            return render_template("change-username.html")
+        elif old_username != session["username"]:
+            flash("Incorrect old username")
+            return render_template("change-username.html")
+        
+        # Update username
+        try:
+            db.execute("UPDATE users SET username = :new_username WHERE username = :old_username", new_username=new_username, old_username=old_username)
+        except ValueError:
+            flash("Username already taken")
+            return render_template("change-username.html")
+        
+        total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
+        expenses = get_expenses(session["user_id"])  # Get expenses
+
+        # Update session
+        session["username"] = new_username
+
+        flash("Succesfully changed username")
+        return render_template("account.html", username=session["username"], total_expenses=total_expenses, expenses=expenses)
+         
+    else:
+        return render_template("change-username.html")
+    
+
+@app.route("/change_password", methods=["GET", "POST"])
+@login_required
+def change_password():
+
+    if request.method == "POST":
+        current_password = db.execute("SELECT pass_hash FROM users WHERE id = ?", session["user_id"])
+
+        old_password = request.form.get("old_password")
+        new_password = request.form.get("new_password")
+
+        # Validate old password
+        if not old_password or not new_password:
+            flash("Incorrect old pasword")
+            return render_template("change-password.html")
+        elif not check_password_hash(current_password[0]["pass_hash"], old_password):
+            flash("Incorrect old password")
+            return render_template("change-password.html")
+
+        new_password = generate_password_hash(new_password)
+
+        # Update password
+        db.execute("UPDATE users SET pass_hash = :new_password", new_password=new_password)
+
+        total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
+        expenses = get_expenses(session["user_id"])  # Get expenses
+
+        flash("Succesfully changed password")
+        return render_template("account.html", username=session["username"], total_expenses=total_expenses, expenses=expenses)
+    else:
+        return render_template("change-password.html")
+
+
+@app.route("/delete_account", methods=["GET", "POST"])
+@login_required
+def delete_account():
+    if request.method == "POST":
+        delete_user(session["user_id"])
+
+        session.clear()
+
+        return render_template("farewell.html")
+
+    else:
+        return render_template("delete-account.html")
+    

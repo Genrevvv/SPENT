@@ -8,7 +8,7 @@ function edit(editIcon, year, month, day, amount, id) {
                     day="${day}"
                     id="${id}">
                  </i>`;
-    xIcon = `<i class="fa-solid fa-x cancel-icon"></i>`;
+    xIcon = '<i class="fa-solid fa-x cancel-icon"></i>';
 
     tdButton.innerHTML = `<button class="spent-button-2">
                                 ${inputBox}${xIcon}${checkIcon}
@@ -93,4 +93,11 @@ document.querySelectorAll('.edit-icon').forEach(editIcon => {
         // Call the function with the icon's attribute as its parameters
         edit(editIcon, year, month, day, amount, id);
     });
+});
+
+
+// Removes flash message
+document.getElementById('remove-flash').addEventListener('click', function() {
+    element = document.getElementById('flash-message');
+    element.remove();
 });

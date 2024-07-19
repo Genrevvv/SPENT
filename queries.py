@@ -7,6 +7,34 @@ db = SQL("sqlite:///spent.db")
 
 """This file contains reusable query functions for app.py"""
 
+def delete_user(user_id):
+    """Delete user and everything related to them"""
+
+    # Delete row/s of spent related to user
+    db.execute("""DELETE FROM spent 
+                    WHERE day_id IN (
+                        SELECT id FROM days WHERE month_id IN (
+                            SELECT id FROM months WHERE year_id IN (
+                                SELECT id FROM years WHERE user_id = :user_id)))""", user_id=user_id)
+    
+    # Delete row/s of days related to user
+    db.execute("""DELETE FROM days 
+                    WHERE month_id IN (
+                        SELECT id FROM months WHERE year_id IN (
+                            SELECT id FROM years WHERE user_id = :user_id))""", user_id=user_id)
+    
+    # Delete row/s of months related to user
+    db.execute("""DELETE FROM months 
+                    WHERE year_id IN (
+                        SELECT id FROM years WHERE user_id = :user_id)""", user_id=user_id)
+    
+    # Delete row/s of years related to user
+    db.execute("DELETE FROM years WHERE user_id = :user_id ", user_id=user_id)
+
+    # Delete user in the db
+    db.execute("DELETE FROM users WHERE id = :user_id", user_id=user_id)
+
+
 def get_categories(user_id, year, month, day):
     """Create a list of categories (dict)"""
 
