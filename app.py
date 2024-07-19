@@ -1,5 +1,5 @@
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
@@ -309,10 +309,9 @@ def add_day():
     except ValueError:
         return error_occured("year not found", 404)
     
-    # check month in db
+    # Check month in db
     try:
         month = request.form.get("month")
-        print(f"The month is {month}")
         validator = check_month(year, month)
         if validator != 0:
             return validator
@@ -360,7 +359,6 @@ def spent():
     # check month in db
     try:
         month = request.args.get("month")
-        print(f"The month is {month}")
         validator = check_month(year, month)
         if validator != 0:
             return validator
@@ -402,10 +400,9 @@ def add_category():
     except ValueError:
         return error_occured("year not found", 404)
     
-    # check month in db
+    # Check month in db
     try:
         month = request.form.get("month")
-        print(f"The month is {month}")
         validator = check_month(year, month)
         if validator != 0:
             return validator
@@ -426,7 +423,7 @@ def add_category():
     
     # Validate amount input
     try:
-        amount = int(request.form.get("amount"))
+        amount = float(request.form.get("amount"))
         if amount < 1:
             flash("Invalid amount input")
             return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
@@ -466,7 +463,7 @@ def add_category():
 @app.route("/delete_year", methods=["POST"])
 @login_required
 def delete_year():
-    # Check year in db
+    # Validate id
     try:
         year_id = int(request.form.get("year_id"))
     except ValueError:
@@ -494,7 +491,7 @@ def delete_month():
     except ValueError:
         return error_occured("year not found", 404)
     
-    # Check year in db
+    # Validate id
     try:
         month_id = int(request.form.get("month_id"))
     except ValueError:
@@ -517,7 +514,7 @@ def delete_month():
 @app.route("/delete_day", methods=["POST"])
 @login_required
 def delete_day():
-    # Check year in db
+    # Validate id
     try:
         day_id = int(request.form.get("day_id"))
     except ValueError:
@@ -557,7 +554,7 @@ def delete_day():
 @app.route("/delete_category", methods=["POST"])
 @login_required
 def delete_category():
-    # Check year in db
+    # Validate id
     try:
         spent_id = int(request.form.get("spent_id"))
     except ValueError:
@@ -600,3 +597,67 @@ def delete_category():
     expenses = get_expenses(session["user_id"]) # Get expenses
 
     return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
+
+
+@app.route("/save", methods=["POST"])
+@login_required
+def save():
+    # ChatGPT's idea
+    
+    # Get the data from the request
+    data = request.json  # Parse data
+
+    total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
+    expenses = get_expenses(session["user_id"])  # Get expenses
+
+    # Validate data
+    try:
+        year = int(data.get('year'))
+        validator = check_year(year)
+        if validator != 0:
+            return jsonify({"error": "Invalid year"}), 400
+    except ValueError:
+        return jsonify({"error": "Year not found"}), 404
+    
+    try:
+        month = data.get('month')
+        validator = check_month(year, month)
+        if validator != 0:
+            return jsonify({"error": "Invalid month"}), 400
+    except ValueError:
+        return jsonify({"error": "Month not found"}), 404
+    
+    try:
+        day = int(data.get('day'))
+        validator = check_day(year, month, day)
+        if validator != 0:
+            return jsonify({"error": "Invalid day"}), 400
+    except ValueError:
+        return jsonify({"error": "Day not found"}), 404
+    
+    try:
+        amount = float(data.get('amount'))
+        if amount < 1:
+            return jsonify({"error": "Invalid amount input"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid amount input"}), 400
+    
+    try:
+        id = int(data.get('id'))
+    except ValueError:
+        return jsonify({"error": "Invalid category id"}), 400
+
+    # Update amount of a category with that 'id' in the db
+    db.execute("UPDATE spent SET amount = :amount WHERE id = :id", amount=amount, id=id)
+    
+    categories = get_categories(session["user_id"], year, month, day)
+    total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
+    expenses = get_expenses(session["user_id"])  # Get expenses
+
+    # Return JSON response with updated data
+    return jsonify({
+        "success": True,
+        "categories": categories,
+        "total_expenses": total_expenses,
+        "expenses": expenses
+    })

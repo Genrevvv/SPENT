@@ -181,6 +181,11 @@ a:visited {
     text-align: left;
 }
 
+.display table td:hover {
+    background-color: #f1f0f0;
+    cursor:  text;
+}
+
 .display table th:nth-child(1) {
     width: 50%;
 }
@@ -306,6 +311,7 @@ table td button:hover {
 }
 
 .header {
+    font-size: 1rem;
     background-color: #67a6e9;
     border: 1px solid #0777ee;
     padding: 0.5rem 0;
@@ -354,7 +360,6 @@ table td button:hover {
     right: 8px; 
     top: 50%; 
     transform: translateY(-50%); 
-    margin-left: 5px; 
 }
 
 .spent-td:hover {
@@ -366,3 +371,42 @@ table td button:hover {
     background-color: #f1f0f0;
 }
 
+.spent-td button input {
+    text-align: center;
+    width: 40%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0.25rem;
+}
+
+.spent-button-2 {
+    position: relative;
+    border: none; 
+}
+
+
+.fa-check { 
+    position: absolute;
+    transform: translateY(-10%);
+    margin-left: 0.5rem;
+    padding: 0;
+    font-size: 1.3rem;
+    color: #008000;
+}
+
+.fa-check:hover {
+    cursor: pointer;
+    color: #00c400;
+}
+
+.fa-x {
+    margin-left: 0.5rem;
+    font-size: 1rem;
+    color: #ff0000;
+}
+
+.fa-x:hover {
+    cursor: pointer;
+    color: #ff5656;
+}

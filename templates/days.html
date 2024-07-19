@@ -43,23 +43,23 @@
                                     <form action="/spent" method="get">
                                         <input name="year" value="{{ year }}" type="hidden">
                                         <input name="month" value="{{ month }}" type="hidden">
-                                        <input name="day" value="{{ day['day'] }}" type="hidden">
-                                        <button type="submit">{{ day["day"] }}</button>
+                                        <input name="day" value="{{ day.day }}" type="hidden">
+                                        <button type="submit">{{ day.day }}</button>
                                     </form>
                                 </td>
                                 <td>
                                     <form action="/spent" method="get">
                                         <input name="year" value="{{ year }}" type="hidden">
                                         <input name="month" value="{{ month }}" type="hidden">
-                                        <input name="day" value="{{ day['day'] }}" type="hidden">
-                                        <button type="submit">{{ day["expenses"] | float | format_currency }}</button>
+                                        <input name="day" value="{{ day.day }}" type="hidden">
+                                        <button type="submit">{{ day.expenses | float | format_currency }}</button>
                                     </form>
                                 </td>
                                 <td>
                                     <form action="/delete_day" method="post">
                                         <input name="year" value="{{ year }}" type="hidden">
                                         <input name="month" value="{{ month }}" type="hidden">
-                                        <input name="day_id" value="{{ day['id'] }}" type="hidden">
+                                        <input name="day_id" value="{{ day.id }}" type="hidden">
                                         <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button>
                                     </form>
                                 </td>

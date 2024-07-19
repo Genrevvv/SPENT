@@ -51,18 +51,18 @@
                         {% for category in categories %}
                             <tr>
                                 <td class="spent-td">
-                                    <input name="year" value="{{ year }}" type="hidden">
-                                    <input name="month" value="{{ month }}" type="hidden">
-                                    <input name="day" value="{{ day['day'] }}" type="hidden">
-                                    <button type="submit">{{ category["category"] }}</button>
+                                    <button>{{ category.category }}</button>
                                 </td>
                                 <td class="spent-td">
-                                    <input name="year" value="{{ year }}" type="hidden">
-                                    <input name="month" value="{{ month }}" type="hidden">
-                                    <input name="day" value="{{ day }}" type="hidden">
-                                    <button class="spent-button" type="submit">
-                                        {{ category["amount"] | float | format_currency }}
-                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    <button class="spent-button">
+                                        {{ category.amount | float | format_currency }}
+                                        <i class="fa-solid fa-pen-to-square edit-icon"
+                                            year="{{ year }}"
+                                            month="{{ month }}"
+                                            day="{{ day }}"
+                                            amount="{{ category.amount }}"
+                                            id="{{ category.id }}">
+                                        </i>   
                                     </button>
                                 </td> 
                                 <td>
@@ -70,7 +70,7 @@
                                         <input name="year" value="{{ year }}" type="hidden">
                                         <input name="month" value="{{ month }}" type="hidden">
                                         <input name="day" value="{{ day }}" type="hidden">   
-                                        <input name="spent_id" value="{{ category['id'] }}" type="hidden">  
+                                        <input name="spent_id" value="{{ category.id }}" type="hidden">  
                                         <button class="icon-container" type="submit"><i class="fa-solid fa-trash"></i></button>
                                     </form>
                                 </td>
