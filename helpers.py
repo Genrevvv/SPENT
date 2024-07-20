@@ -121,8 +121,8 @@ def login_required(f):
 
 def reset_flash():
     # Remove previous flash message rendered to the page
-    if 'flashes' in session:
-        session.pop('flashes')
+    if '_flashes' in session:
+        session.pop('_flashes', None)
 
 # Validate category
 def validate_category(year, month, day, category, categories):
@@ -144,8 +144,6 @@ def validate_category(year, month, day, category, categories):
                 flash("Category already exist")
                 return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
     
-    reset_flash()
-
     return 0
 
 

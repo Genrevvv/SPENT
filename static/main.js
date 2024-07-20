@@ -68,14 +68,14 @@ function save(container, year, month, day, amount, id) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Reload the page
-            window.location.reload();
-        } else {
+            window.location.href = `/spent?year=${year}&month=${month}&day=${day}`; // Reload the page
+        } 
+        else {
             // Handle errors or messages
             console.error('Error:', data);
         }
-})
-.catch(error => console.error('Error:', error));
+    })
+    .catch(error => console.error('Error:', error));
 
 }
 

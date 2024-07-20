@@ -53,9 +53,7 @@ def index():
 
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
-
-    print(expenses)
-
+    
     return render_template("index.html", years=years, total_expenses=total_expenses, expenses=expenses)
 
     
@@ -194,9 +192,6 @@ def add_year():
     # Update year in database
     db.execute("INSERT INTO years (user_id, year) VALUES (?, ?)", session["user_id"], year)
 
-    reset_flash()
-    
-    flash("Year added succesfully")
     return redirect("/") 
 
 
@@ -260,8 +255,6 @@ def add_month():
 
     # Get the updated list of months (dict)
     months = get_months(session["user_id"], year)
-
-    reset_flash()
 
     return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
@@ -347,8 +340,6 @@ def add_day():
     # Get the updated list of days (dict)
     days = get_days(session["user_id"], year, month)
     
-    reset_flash()
-
     return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
 
 
@@ -468,9 +459,7 @@ def add_category():
 
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
-        
-    reset_flash()
-
+    
     return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
 
 
@@ -628,9 +617,6 @@ def save():
 
     # Get the data from the request
     data = request.json  # Parse data
-
-    total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
-    expenses = get_expenses(session["user_id"])  # Get expenses
 
     # Validate data
     try:
