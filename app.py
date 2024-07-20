@@ -654,6 +654,10 @@ def save():
     total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
     expenses = get_expenses(session["user_id"])  # Get expenses
 
+    # Remove previous flash message rendered to the page
+    if 'flashes' in session:
+        session.pop('flashes')
+
     # Return JSON response with updated data
     return jsonify({
         "success": True,
