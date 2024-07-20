@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
 # Custom auxiliary functions
-from helpers import check_day, check_month, check_year, error_occured, format_currency, login_required, validate_category, validate_day, validate_month, validate_year
+from helpers import check_day, check_month, check_year, error_occured, format_currency, login_required, reset_flash, validate_category, validate_day, validate_month, validate_year
 
 # Custom reusable query functions
 from queries import delete_user, get_categories, get_days, get_months, get_years, get_expenses, get_total_expenses
@@ -194,6 +194,8 @@ def add_year():
     # Update year in database
     db.execute("INSERT INTO years (user_id, year) VALUES (?, ?)", session["user_id"], year)
 
+    reset_flash()
+    
     flash("Year added succesfully")
     return redirect("/") 
 
@@ -217,6 +219,8 @@ def months():
 
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
+
+    reset_flash()
 
     return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
@@ -257,6 +261,8 @@ def add_month():
     # Get the updated list of months (dict)
     months = get_months(session["user_id"], year)
 
+    reset_flash()
+
     return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
 
@@ -289,6 +295,8 @@ def days():
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
     
+    reset_flash()
+
     return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
 
 
@@ -339,6 +347,8 @@ def add_day():
     # Get the updated list of days (dict)
     days = get_days(session["user_id"], year, month)
     
+    reset_flash()
+
     return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
 
 
@@ -379,6 +389,8 @@ def spent():
 
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
+
+    reset_flash()
 
     return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
 
@@ -457,6 +469,8 @@ def add_category():
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
         
+    reset_flash()
+
     return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
 
 
@@ -474,6 +488,8 @@ def delete_year():
     db.execute("DELETE FROM days WHERE month_id IN (SELECT id FROM months WHERE year_id = :year_id)", year_id=year_id)
     db.execute("DELETE FROM months WHERE year_id = :year_id", year_id=year_id)
     db.execute("DELETE FROM years WHERE id = :year_id", year_id=year_id)
+
+    reset_flash()
 
     return redirect("/")
 
@@ -507,6 +523,8 @@ def delete_month():
 
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
+
+    reset_flash()
 
     return render_template("months.html", year=year, months=months, total_expenses=total_expenses, expenses=expenses)
 
@@ -547,6 +565,8 @@ def delete_day():
     
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
+
+    reset_flash()
 
     return render_template("days.html", year=year, month=month, days=days, total_expenses=total_expenses, expenses=expenses)
 
@@ -595,6 +615,8 @@ def delete_category():
 
     total_expenses= get_total_expenses(session["user_id"]) # Get total expenses
     expenses = get_expenses(session["user_id"]) # Get expenses
+
+    reset_flash()
 
     return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
 
@@ -654,9 +676,7 @@ def save():
     total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
     expenses = get_expenses(session["user_id"])  # Get expenses
 
-    # Remove previous flash message rendered to the page
-    if 'flashes' in session:
-        session.pop('flashes')
+    reset_flash()
 
     # Return JSON response with updated data
     return jsonify({
@@ -673,6 +693,7 @@ def account():
     total_expenses = get_total_expenses(session["user_id"])  # Get total expenses
     expenses = get_expenses(session["user_id"])  # Get expenses
 
+    reset_flash()
     return render_template("account.html", username=session["username"], total_expenses=total_expenses, expenses=expenses)
 
 

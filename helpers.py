@@ -26,7 +26,7 @@ def check_day(year, month, day):
             break
     else:
         return error_occured("day not found", 404)
-    
+
     return 0
 
 
@@ -119,6 +119,10 @@ def login_required(f):
 
     return decorated_function
 
+def reset_flash():
+    # Remove previous flash message rendered to the page
+    if 'flashes' in session:
+        session.pop('flashes')
 
 # Validate category
 def validate_category(year, month, day, category, categories):
@@ -139,7 +143,9 @@ def validate_category(year, month, day, category, categories):
         if category_value["category"] == category:
                 flash("Category already exist")
                 return render_template("spent.html", year=year, month=month, day=day, categories=categories, total_expenses=total_expenses, expenses=expenses)
-        
+    
+    reset_flash()
+
     return 0
 
 
