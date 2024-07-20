@@ -7,34 +7,6 @@ db = SQL("sqlite:///spent.db")
 
 """This file contains reusable query functions for app.py"""
 
-def delete_user(user_id):
-    """Delete user and everything related to them"""
-
-    # Delete row/s of spent related to user
-    db.execute("""DELETE FROM spent 
-                    WHERE day_id IN (
-                        SELECT id FROM days WHERE month_id IN (
-                            SELECT id FROM months WHERE year_id IN (
-                                SELECT id FROM years WHERE user_id = :user_id)))""", user_id=user_id)
-    
-    # Delete row/s of days related to user
-    db.execute("""DELETE FROM days 
-                    WHERE month_id IN (
-                        SELECT id FROM months WHERE year_id IN (
-                            SELECT id FROM years WHERE user_id = :user_id))""", user_id=user_id)
-    
-    # Delete row/s of months related to user
-    db.execute("""DELETE FROM months 
-                    WHERE year_id IN (
-                        SELECT id FROM years WHERE user_id = :user_id)""", user_id=user_id)
-    
-    # Delete row/s of years related to user
-    db.execute("DELETE FROM years WHERE user_id = :user_id ", user_id=user_id)
-
-    # Delete user in the db
-    db.execute("DELETE FROM users WHERE id = :user_id", user_id=user_id)
-
-
 def get_categories(user_id, year, month, day):
     """Create a list of categories (dict)"""
 
@@ -95,17 +67,6 @@ def get_years(user_id):
                                 """, user_id=user_id) # Idea by chatGPT (LEFT JOIN)
 
 
-def get_total_expenses(user_id):
-    total_expenses = db.execute("""SELECT SUM(spent.amount) AS total_expenses
-                            FROM spent
-                            JOIN days ON days.id = spent.day_id
-                            JOIN months ON months.id = days.month_id
-                            JOIN years ON years.id = months.year_id
-                            WHERE years.user_id = :user_id
-                            """, user_id=user_id)
-    total_expenses = 0 if total_expenses[0]["total_expenses"] == None else total_expenses[0]["total_expenses"]
-    return total_expenses
-
 def get_expenses(user_id):
     """Get total expenses"""
 
@@ -130,3 +91,43 @@ def get_expenses(user_id):
     expenses = sorted(expenses, key=itemgetter('amount'), reverse=True) # Assisted by chatGPT
     
     return expenses
+
+
+def get_total_expenses(user_id):
+    total_expenses = db.execute("""SELECT SUM(spent.amount) AS total_expenses
+                            FROM spent
+                            JOIN days ON days.id = spent.day_id
+                            JOIN months ON months.id = days.month_id
+                            JOIN years ON years.id = months.year_id
+                            WHERE years.user_id = :user_id
+                            """, user_id=user_id)
+    total_expenses = 0 if total_expenses[0]["total_expenses"] == None else total_expenses[0]["total_expenses"]
+    return total_expenses
+
+
+def delete_user(user_id):
+    """Delete user and everything related to them"""
+
+    # Delete row/s of spent related to user
+    db.execute("""DELETE FROM spent 
+                    WHERE day_id IN (
+                        SELECT id FROM days WHERE month_id IN (
+                            SELECT id FROM months WHERE year_id IN (
+                                SELECT id FROM years WHERE user_id = :user_id)))""", user_id=user_id)
+    
+    # Delete row/s of days related to user
+    db.execute("""DELETE FROM days 
+                    WHERE month_id IN (
+                        SELECT id FROM months WHERE year_id IN (
+                            SELECT id FROM years WHERE user_id = :user_id))""", user_id=user_id)
+    
+    # Delete row/s of months related to user
+    db.execute("""DELETE FROM months 
+                    WHERE year_id IN (
+                        SELECT id FROM years WHERE user_id = :user_id)""", user_id=user_id)
+    
+    # Delete row/s of years related to user
+    db.execute("DELETE FROM years WHERE user_id = :user_id ", user_id=user_id)
+
+    # Delete user in the db
+    db.execute("DELETE FROM users WHERE id = :user_id", user_id=user_id)

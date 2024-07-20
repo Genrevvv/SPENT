@@ -88,8 +88,8 @@ def convert_month(month):
     return int_month
 
 
-def error_occured(error_occured, status_code):
-    return render_template("error.html", error=error_occured, code=status_code)
+def error_occured(error_message, status_code):
+    return render_template("error.html", error=error_message, code=status_code)
 
 def format_currency(value):
     # Check for user's currency
